@@ -29,7 +29,7 @@ void DEM::kcv_uniaxial(const std::string& settings_file_name) {
 
     EngineType simulator(1us);
 
-    auto mat = simulator.create_material<StoneMaterial>(2650.);
+    auto mat = simulator.create_material<StoneMaterial>(2800.);
     mat->E = parameters.get_parameter<double>("E");
     mat->nu = parameters.get_parameter<double>("nu");
     mat->unloading_exponent = parameters.get_parameter<double>("unloading_exponent");
