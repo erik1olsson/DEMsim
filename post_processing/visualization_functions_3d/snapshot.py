@@ -6,10 +6,9 @@ from mayavi import mlab
 import mayavi
 import numpy as np
 
-from visualization_functions_3d.plotting_functions import SpheresPlotter, SurfacesPlotter, BoundingBox
-from visualization_functions_3d.periodic_bc import PeriodicBC
-from visualization_functions_3d.battery_contact_plotter import BatteryContactPlotter
-from visualization_functions_3d import colors
+from plotting_functions import SpheresPlotter, SurfacesPlotter, BoundingBox
+from periodic_bc import PeriodicBC
+import colors
 
 
 class Snapshot:
@@ -73,7 +72,7 @@ def main():
     scene = fig.scene
     scene.camera.position = [-0, 0.5, 0.5]
     scene.camera.focal_point = [0., 0, 0]
-    snapshot = Snapshot(os.path.expanduser('~/DEMsim/results/asphalt_shear_box/big_small_100kPa'))
+    snapshot = Snapshot(os.path.expanduser('~/DEMsim/results/kcv/uniaxial/full/animation'))
     snapshot.plot_periodic_bc = False
     bbox = BoundingBox()
     # bbox.z_max = lambda t: 0.025

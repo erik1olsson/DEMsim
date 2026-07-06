@@ -39,6 +39,7 @@ void DEM::kcv_uniaxial(const std::string& settings_file_name) {
 
     auto compaction_velocity = parameters.get_parameter<double>("compaction_velocity");
     auto compaction_distance = parameters.get_parameter<double>("compaction_distance");
+    simulator.set_mass_scale_factor(10);
 
     auto particle_radii = read_vector_from_file<double>(particle_file);
 

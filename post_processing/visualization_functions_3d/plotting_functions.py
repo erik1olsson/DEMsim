@@ -8,7 +8,7 @@ import numpy as np
 
 from mayavi import mlab
 
-from visualization_functions_3d import colors
+import colors
 
 
 class BoundingBox:
