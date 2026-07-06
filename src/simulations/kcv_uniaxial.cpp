@@ -29,7 +29,7 @@ void DEM::kcv_uniaxial(const std::string& settings_file_name) {
 
     EngineType simulator(1us);
 
-    auto mat = simulator.create_material<StoneMaterial>(2800.);
+    auto mat = simulator.create_material<StoneMaterial>(2650.);
     mat->E = parameters.get_parameter<double>("E");
     mat->nu = parameters.get_parameter<double>("nu");
     mat->unloading_exponent = parameters.get_parameter<double>("unloading_exponent");
@@ -43,6 +43,7 @@ void DEM::kcv_uniaxial(const std::string& settings_file_name) {
     for (const auto& radii_iter: particle_radii) {
         stone_volume += 4*3.1415*pow(radii_iter, 3)/3;
     }
+
     double stone_mass = stone_volume*mat->density;
     std::cout << "Mass of the stones: " << stone_mass << std::endl;
     double main_cylinder_height = pow(stone_volume/0.5/3.1415, 1./3);
