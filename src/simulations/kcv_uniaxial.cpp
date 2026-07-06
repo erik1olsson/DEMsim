@@ -40,8 +40,8 @@ void DEM::kcv_uniaxial(const std::string& settings_file_name) {
     auto particle_radii = read_vector_from_file<double>(particle_file);
 
     double stone_volume = 0;
-    for (const auto& radii_iter: particle_radii) {
-        stone_volume += 4*3.1415*pow(radii_iter, 3)/3;
+    for (const auto& r: particle_radii) {
+        stone_volume += 4*3.1415*pow(r, 3)/3;
     }
 
     double stone_mass = stone_volume*mat->density;
