@@ -83,7 +83,7 @@ def main():
     # snapshot.visible_functions[3] = lambda t: False
     snapshot.surfaces_colors[0] = colors.red
     snapshot.surfaces_colors[3] = colors.red
-    snapshot.plot(0.1)
+    snapshot.plot(0.38)
     # mlab.view(0, 0, distance=0.25)
     scene.camera.view_up = [0, 0, 1]
     scene.camera.focal_point = [0., 0, 0]

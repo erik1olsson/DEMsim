@@ -29,7 +29,7 @@ namespace DEM {
         const Vec3& get_torque() const { return torque_; }
 
         double get_mass() const { return mass_; }
-
+        void set_mass(double new_mass) {mass_ = new_mass; }
 
         const Vec3& get_position() const { return position_; }
         const Vec3& get_velocity() const { return velocity_; }

@@ -26,7 +26,6 @@ void DEM::kcv_uniaxial(const std::string& settings_file_name) {
     auto output_directory = parameters.get_parameter<std::string>("output_dir");
     auto particle_file = parameters.get_parameter<std::string>("radius_file");
     auto gas_density = parameters.get_parameter<double>("gas_density");
-    auto filling_density = parameters.get_parameter<double>("filling_density");
 
     EngineType simulator(1us);
 
@@ -38,17 +37,19 @@ void DEM::kcv_uniaxial(const std::string& settings_file_name) {
     mat->mu_wall = parameters.get_parameter<double>("mu_wall");
 
     auto compaction_velocity = parameters.get_parameter<double>("compaction_velocity");
-    auto compaction_distance = parameters.get_parameter<double>("compaction_distance");
-    simulator.set_mass_scale_factor(10);
-
     auto particle_radii = read_vector_from_file<double>(particle_file);
 
-    double main_cylinder_height = 0.11643;
-    double main_cylinder_radius = 0.0254*2;
-
-    auto cylinder_volume = main_cylinder_height*main_cylinder_radius*main_cylinder_radius*3.1415;
-    auto total_particle_volume = cylinder_volume*filling_density;
-    auto gas_volume = total_particle_volume/gas_density;
+    double stone_volume = 0;
+    for (const auto& radii_iter: particle_radii) {
+        stone_volume += 4*3.1415*pow(radii_iter, 3)/3;
+    }
+    double stone_mass = stone_volume*mat->density;
+    std::cout << "Mass of the stones: " << stone_mass << std::endl;
+    double main_cylinder_height = pow(stone_volume/0.5/3.1415, 1./3);
+    double main_cylinder_radius = main_cylinder_height/2;
+    std::cout << "Target cylinder height: " << main_cylinder_height << std::endl;
+    std::cout << "Target cylinder radius: " << main_cylinder_radius << std::endl;
+    auto gas_volume = stone_volume/gas_density;
 
     auto filling_height = gas_volume/(3.1415*main_cylinder_radius*main_cylinder_radius);
 
@@ -99,6 +100,10 @@ void DEM::kcv_uniaxial(const std::string& settings_file_name) {
         ParticleType *p = simulator.create_particle(simulation_particle_radii[i], particle_positions[i],
                                                     Vec3(0, 0, 0), mat);
         particles.push_back(p);
+        double min_particle_mass = 4*3.1415*0.004*0.004*0.004/3*mat->density;
+        if (p->get_mass() < min_particle_mass) {
+            p->set_mass(min_particle_mass);
+        }
     }
 
     auto output_filling = simulator.create_output(output_directory + "/filling/", 0.001s);
@@ -128,8 +133,7 @@ void DEM::kcv_uniaxial(const std::string& settings_file_name) {
 
     auto output_contact = simulator.create_output(output_directory + "compaction/contact_data", 0.01s);
     output_contact->print_contacts = true;
-
-    std::chrono::duration<double> compaction_time(compaction_distance/compaction_velocity);
-    EngineType::RunForTime run_for_time_compaction(simulator, compaction_time);
-    simulator.run(run_for_time_compaction);
+    double comp_force = 7.5e6*3.1415*main_cylinder_radius*main_cylinder_radius;
+    EngineType::SurfaceNormalForceGreater surface_normal_force_greater(top_surface, comp_force);
+    simulator.run(surface_normal_force_greater);
 }
