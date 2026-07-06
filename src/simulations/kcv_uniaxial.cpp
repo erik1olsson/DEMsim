@@ -136,4 +136,16 @@ void DEM::kcv_uniaxial(const std::string& settings_file_name) {
     double comp_force = 7.5e6*3.1415*main_cylinder_radius*main_cylinder_radius;
     EngineType::SurfaceNormalForceGreater surface_normal_force_greater(top_surface, comp_force);
     simulator.run(surface_normal_force_greater);
+
+    top_surface->set_velocity(Vec3(0 ,0, compaction_velocity));
+
+    auto output_unloading = simulator.create_output(output_directory + "/unloading/", 0.001s);
+    output_compaction->print_kinetic_energy = true;
+    output_compaction->print_surface_forces = true;
+    output_compaction->print_surface_positions = true;
+
+    output_contact = simulator.create_output(output_directory + "unloading/contact_data", 0.01s);
+    output_contact->print_contacts = true;
+    EngineType::SurfaceNormalForceGreater surface_normal_force_less(top_surface, 1e-6);
+    simulator.run(surface_normal_force_less);
 }
