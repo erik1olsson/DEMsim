@@ -28,6 +28,7 @@ namespace DEM {
     void porous_electrode_rve(const std::string& settings_file_name);
     void asphalt_shear_box(const std::string& settings_file_name);
     void asphalt_shear_box_bonded(const std::string& settings_file_name);
+    void kcv_uniaxial(const std::string& settings_file_name);
 
     std::map<std::string, SimulationFunctionPtr> valid_simulations();
 
