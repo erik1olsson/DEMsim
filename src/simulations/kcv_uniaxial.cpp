@@ -147,6 +147,6 @@ void DEM::kcv_uniaxial(const std::string& settings_file_name) {
 
     output_contact = simulator.create_output(output_directory + "unloading/contact_data", 0.01s);
     output_contact->print_contacts = true;
-    EngineType::SurfaceNormalForceGreater surface_normal_force_less(top_surface, 1e-6);
+    EngineType::SurfaceNormalForceLess surface_normal_force_less(top_surface, 1e-6);
     simulator.run(surface_normal_force_less);
 }
