@@ -46,8 +46,8 @@ void DEM::kcv_uniaxial(const std::string& settings_file_name) {
 
     double stone_mass = stone_volume*mat->density;
     std::cout << "Mass of the stones: " << stone_mass << std::endl;
-    double main_cylinder_height = pow(stone_volume/0.5/3.1415, 1./3);
-    double main_cylinder_radius = main_cylinder_height/2;
+    double main_cylinder_radius = pow(stone_volume/3.1415, 1./3);
+    double main_cylinder_height = 2*main_cylinder_radius;
     std::cout << "Target cylinder height: " << main_cylinder_height << std::endl;
     std::cout << "Target cylinder radius: " << main_cylinder_radius << std::endl;
     auto gas_volume = stone_volume/gas_density;
