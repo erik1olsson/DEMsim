@@ -13,13 +13,12 @@
 #include "contact.h"
 #include "../utilities/contact_matrix.h"
 #include "../surfaces/surface_base.h"
-#include "../particles/spherical_particle.h"
+#include "fine_cylinder.h"
 
 namespace DEM {
 
     template<typename ForceModel, typename ParticleType>
     class Engine;
-
     class ParameterMap;
 
     template<typename ForceModel, typename ParticleType>
@@ -47,19 +46,22 @@ namespace DEM {
         bool print_periodic_bc = false;
         bool print_mirror_particles = false;
         bool print_fabric_force_tensor = false;
+        bool print_fine_cylinder = false;
 
-        std::string restart_data() const;
+        [[nodiscard]] std::string restart_data() const;
         void set_new_directory(const std::string& directory);
         void add_particle_to_follow(std::size_t particle_id);
 
     private:
-        using OutputFunPtr = void (Output<ForceModel, ParticleType>::*)() const;
+        using OutputFunPtr = void (Output::*)() const;
         using FuncVec = std::vector<std::pair<bool&, OutputFunPtr>>;
         std::string name_;
         const std::vector<ParticleType*>& particles_;
         const std::vector<SurfaceType*>& surfaces_;
         const ContactMatrix<ContactType>& contacts_;
         const Engine<ForceModel, ParticleType>& engine_;
+
+        const FineCylinder<ForceModel, ParticleType>* fine_cylinder_ = nullptr;
 
         std::filesystem::path directory_;
         std::vector<const ParticleType*> particles_to_print_;
@@ -73,7 +75,9 @@ namespace DEM {
                                    {Output::print_bounding_box,        &Output::write_bounding_box},
                                    {Output::print_periodic_bc,         &Output::write_periodic_bc},
                                    {Output::print_mirror_particles,    &Output::write_mirror_particles},
-                                   {Output::print_fabric_force_tensor, &Output::write_fabric_force_tensor}};
+                                   {Output::print_fabric_force_tensor, &Output::write_fabric_force_tensor},
+                                   {Output::print_fine_cylinder,       &Output::write_fine_cylinder}
+        };
 
         std::chrono::duration<double> current_time_;
         std::chrono::duration<double> time_until_output_;
@@ -90,6 +94,7 @@ namespace DEM {
         void write_mirror_particles() const;
         void write_fabric_force_tensor() const;
         void write_particles_to_follow() const;
+        void write_fine_cylinder() const;
     };
 }
 

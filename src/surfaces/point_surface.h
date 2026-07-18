@@ -20,7 +20,8 @@ namespace DEM {
     public:
         PointSurface(std::size_t id, std::vector<Vec3> points, bool infinite, const std::string& name,
                      bool adhesive=true, std::size_t collision_id=0);
-        PointSurface(const ParameterMap& parameters);
+
+        explicit PointSurface(const ParameterMap& parameters);
         ~PointSurface() override = default;
 
         using Surface<ForceModel, ParticleType>::get_id;

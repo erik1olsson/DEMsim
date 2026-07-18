@@ -13,6 +13,7 @@
 #include "../utilities/filling_functions.h"
 
 void DEM::cyclic_triaxial(const std::string &settings_file_name) {
+    constexpr double pi = 3.1415;
     using namespace DEM;
     using ForceModel = StoneMaterialContact;
     using ParticleType = FractureableSphericalParticle<ForceModel>;

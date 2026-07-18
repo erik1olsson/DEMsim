@@ -49,30 +49,24 @@ DEM::PorousElectrodeContact::PorousElectrodeContact(DEM::PorousElectrodeContact:
     }
 }
 
-DEM::PorousElectrodeContact::PorousElectrodeContact(DEM::PorousElectrodeContact::ParticleType* particle1,
-                                                    DEM::PorousElectrodeContact::SurfaceType* surface,
-                                                    std::chrono::duration<double> dt) {
+DEM::PorousElectrodeContact::PorousElectrodeContact(ParticleType*, SurfaceType*, std::chrono::duration<double>) {
 
 }
 
-DEM::PorousElectrodeContact::PorousElectrodeContact(DEM::PorousElectrodeContact::ParticleType*,
-                                                    DEM::PorousElectrodeContact::ParticleType*,
-                                                    std::chrono::duration<double>,
-                                                    const DEM::ParameterMap& parameters) {
+DEM::PorousElectrodeContact::PorousElectrodeContact(ParticleType*, ParticleType*, std::chrono::duration<double>,
+                                                    const ParameterMap&) {
 
 }
 
-DEM::PorousElectrodeContact::PorousElectrodeContact(DEM::PorousElectrodeContact::ParticleType*,
-                                                    DEM::PorousElectrodeContact::SurfaceType*,
-                                                    std::chrono::duration<double>,
-                                                    const DEM::ParameterMap& parameters) {
+DEM::PorousElectrodeContact::PorousElectrodeContact(ParticleType*,  SurfaceType*, std::chrono::duration<double>,
+                                                    const ParameterMap&) {
 
 }
 
 bool DEM::PorousElectrodeContact::create_binder_contact(const DEM::PorousElectrodeMaterial* mat) {
     std::random_device random_device;
     std::default_random_engine rand_engine { random_device() };
-    std::uniform_real_distribution<double> distribution{0., 1.};
+    std::uniform_real_distribution distribution{0., 1.};
     double random_value = distribution(rand_engine);
     if (random_value < mat->fraction_binder_contacts){
         return true;

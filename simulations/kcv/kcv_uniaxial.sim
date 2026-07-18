@@ -1,7 +1,7 @@
 gas_density=0.2
 filling_density=0.5
 aspect_ratio_after_filling=1.
-output_dir=../results/kcv/uniaxial_0_1kg/full/
+output_dir=../results/kcv/uniaxial_0_1kg/fines_continuum/
 radius_file=../size_distributions/kcv/kcv_full_0_1kg.dat
 E=45E9
 nu=0.15

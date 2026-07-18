@@ -28,7 +28,7 @@ namespace DEM {
         PorousElectrodeContact(ParticleType*, SurfaceType*, std::chrono::duration<double>,
                 const ParameterMap& parameters);
 
-        void update(double h, const Vec3& dt, const Vec3& drot, const Vec3& normal) {
+        void update(double h, const Vec3& dt, const Vec3&, const Vec3& normal) {
             update_normal_force(h);
             update_tangential_force(dt, normal);
         }

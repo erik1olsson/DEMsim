@@ -11,17 +11,20 @@
 #include <memory>
 #include <vector>
 
-#include "../utilities/amplitude.h"
-#include "../surfaces/point_surface.h"
 #include "collision_detection/collision_detector.h"
 #include "contact.h"
-#include "../utilities/contact_matrix.h"
-#include "../surfaces/cylinder.h"
-#include "../surfaces/deformable_point_surface.h"
+#include "output.h"
+#include "fine_cylinder.h"
 
 #include "../materials/material_base.h"
-#include "output.h"
+
+#include "../surfaces/cylinder.h"
+#include "../surfaces/deformable_point_surface.h"
+#include "../surfaces/point_surface.h"
 #include "../surfaces/surface_base.h"
+
+#include "../utilities/amplitude.h"
+#include "../utilities/contact_matrix.h"
 #include "../utilities/vec3.h"
 
 namespace DEM {
@@ -75,14 +78,18 @@ namespace DEM {
                                         const std::string& name, bool inward=true, bool infinite=false,
                                         bool closed_ends=false);
 
+        FineCylinder<ForceModel, ParticleType>* create_fine_cylinder(double radius, double height, double fine_mass, double stone_density,
+            std::size_t numpoints);
+
         OutputPointerType create_output(std::string directory, std::chrono::duration<double> interval);
         OutputPointerType create_output(std::string directory, std::chrono::duration<double> interval,
                                         const std::string& name);
         void remove_output(const OutputPointerType& output_to_remove);
 
         std::shared_ptr<Amplitude> set_force_control_on_surface(Surface<ForceModel, ParticleType>* surface,
-                char direction,  bool global_time=false);
-        void remove_force_control_on_surface(Surface<ForceModel, ParticleType>* surface, char direction);
+                char direction);
+
+        static void remove_force_control_on_surface(Surface<ForceModel, ParticleType>* surface, char direction);
 
         [[maybe_unused]] std::pair<double, std::size_t> set_viscocity_parameters(double viscosity, size_t order=1);
         [[maybe_unused]] void remove_viscosity_parameters(std::pair<double, std::size_t> parameter_pair);
@@ -131,7 +138,7 @@ namespace DEM {
         public:
             RunForTime(const Engine& e, std::chrono::duration<double> time) :
                 engine_{e}, start_time_{engine_.get_time()}, time_to_run_{time} {}
-            ~RunForTime() = default;
+            ~RunForTime() override = default;
             void reset(std::chrono::duration<double> new_run_time) {
                 start_time_ = engine_.get_time();
                 time_to_run_ = new_run_time;
@@ -154,7 +161,7 @@ namespace DEM {
             KineticEnergyLess(const Engine& e, double kinetic_energy, std::chrono::duration<double> update_time) :
                     engine_{e}, kinetic_energy_{kinetic_energy}, start_time_(engine_.get_time()),
                     update_time_{update_time} {}
-            ~KineticEnergyLess() = default;
+            ~KineticEnergyLess() override = default;
             void set_new_value(double new_kinetic_energy) { kinetic_energy_ = new_kinetic_energy; }
             bool operator()() override {
                 if (engine_.get_time() - start_time_ < update_time_) {
@@ -177,7 +184,7 @@ namespace DEM {
             ParticleVelocityLess(const Engine& e, double max_velocity, std::chrono::duration<double> update_time) :
                     engine_{e}, max_velocity_{max_velocity}, start_time_(engine_.get_time()),
                     update_time_{update_time} {}
-            ~ParticleVelocityLess() = default;
+            ~ParticleVelocityLess() override = default;
             void set_new_value(double new_max_velocity) { max_velocity_ = new_max_velocity; }
             bool operator()() override {
                 if (engine_.get_time() - start_time_ < update_time_) {
@@ -200,7 +207,7 @@ namespace DEM {
             ObjectVelocityLess(const Engine& e, double max_velocity, std::chrono::duration<double> update_time) :
                     engine_{e}, max_velocity_{max_velocity}, start_time_(engine_.get_time()),
                     update_time_{update_time} {}
-            ~ObjectVelocityLess() = default;
+            ~ObjectVelocityLess() override = default;
             void set_new_value(double new_max_velocity) { max_velocity_ = new_max_velocity; }
             bool operator()() override {
                 if (engine_.get_time() - start_time_ < update_time_) {
@@ -222,27 +229,27 @@ namespace DEM {
 
         class SurfaceNormalForceGreater : public RunFunctorBase {
         public:
-            SurfaceNormalForceGreater(Engine::SurfaceType * surface, double force):
+            SurfaceNormalForceGreater(const SurfaceType* surface, double force):
             surface_(surface), force_(force){}
             bool operator()() override  {
                 return abs(surface_->get_normal_force()) < force_;
             }
 
         private:
-            Engine::SurfaceType* surface_;
+            const SurfaceType* surface_;
             double force_;
         };
 
         class SurfaceNormalForceLess : public RunFunctorBase {
         public:
-            SurfaceNormalForceLess(Engine::SurfaceType * surface, double force):
+            SurfaceNormalForceLess(const SurfaceType* surface, double force):
                     surface_(surface), force_(force){}
             bool operator()() override  {
                 return abs(surface_->get_normal_force()) > force_;
             }
 
         private:
-            Engine::SurfaceType* surface_;
+            const SurfaceType* surface_;
             double force_;
         };
 
@@ -268,12 +275,11 @@ namespace DEM {
                     std::chrono::duration<double>time_interval) :
                     engine_(engine), surface_(surface), fmin_(fmin), fmax_(fmax), time_interval_(time_interval) ,
                     start_time_(engine.get_time()){}
-            ~SurfaceNormalForceWithinInterval() = default;
+            ~SurfaceNormalForceWithinInterval() override = default;
             bool operator()() override {
                 using namespace std::chrono_literals;
                 // ToDo Fix that it is just force in z that is studied!!!
-                double fn = abs(surface_->get_total_force().z());
-                if (fn > fmin_ && fn < fmax_) {
+                if (double fn = abs(surface_->get_total_force().z()); fn > fmin_ && fn < fmax_) {
                     time_count_ = engine_.get_time() - start_time_;
                 }
                 else {
@@ -297,7 +303,7 @@ namespace DEM {
         public:
             SurfaceVelocityLessThan(double max_velocity, SurfaceType* surface) :
             velocity_(max_velocity), surface_(surface) {}
-            ~SurfaceVelocityLessThan() = default;
+            ~SurfaceVelocityLessThan() override = default;
             bool operator()() override {
                 return surface_->get_velocity().length() > velocity_;
             }
@@ -322,7 +328,7 @@ namespace DEM {
 
         CollisionDetector<ForceModel, ParticleType> collision_detector_;
         std::unique_ptr<PeriodicBCHandlerType> periodic_bc_handler_ = nullptr;
-
+        FineCylinder<ForceModel, ParticleType>* fine_cylinder_ = nullptr;
 
         // Settings type of private data
         Vec3 gravity_ {Vec3{0, 0, 0}};

@@ -64,8 +64,8 @@ void DEM::periodic_bc_simulation(const std::string& settings_file_name) {
     std::vector<Vec3> bottom_points{p1, p2, p3, p4};
     std::vector<Vec3> top_points{p8, p7, p6, p5};
 
-    auto top_surface = simulator.create_point_surface(top_points, true, "top_plate", false);
-    auto bottom_surface = simulator.create_point_surface(bottom_points, true, "bottom_plate", false);
+    simulator.create_point_surface(top_points, true, "top_plate", false);
+    simulator.create_point_surface(bottom_points, true, "bottom_plate", false);
 
     output1->print_particles = true;
     output1->print_kinetic_energy = true;

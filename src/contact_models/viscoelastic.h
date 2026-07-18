@@ -25,8 +25,8 @@ namespace DEM {
         Viscoelastic(ParticleType* particle1, ParticleType* particle2, std::chrono::duration<double> dt);
         Viscoelastic(ParticleType* particle1, SurfaceType* surface, std::chrono::duration<double>dt );
 
-        Viscoelastic(ParticleType*, ParticleType*, std::chrono::duration<double>, const ParameterMap& parameters);
-        Viscoelastic(ParticleType*, SurfaceType*, std::chrono::duration<double>, const ParameterMap& parameters);
+        Viscoelastic(const ParticleType*, ParticleType*, std::chrono::duration<double>, const ParameterMap& parameters);
+        Viscoelastic(const ParticleType*, SurfaceType*, std::chrono::duration<double>, const ParameterMap& parameters);
 
         void update(double h, const Vec3& dt, const Vec3& drot, const Vec3& normal);
 

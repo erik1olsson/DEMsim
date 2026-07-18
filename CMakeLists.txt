@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.9)
 project(DEMsim)
 
 set (CMAKE_CXX_STANDARD 17)
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -msse4 -Ofast -g -fopenmp")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -msse4 -g -fopenmp")
 
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
@@ -79,7 +79,6 @@ add_executable(DEMsim
                src/simulations/periodic_bc/filling_periodic_box.cpp
                src/surfaces/deformable_point_surface.h
                src/surfaces/deformable_point_surface.tpp
-               src/simulations/cathode_mechanical_simulations.cpp
                src/simulations/battery/battery_rve_compaction.cpp
                src/simulations/battery/battery_rve_loading.cpp
                src/simulations/battery/restart_electrode.cpp
@@ -94,8 +93,9 @@ add_executable(DEMsim
                src/simulations/asphalt_shear_box.cpp
                src/simulations/asphalt_shear_box_bonded.cpp
                src/simulations/kcv_uniaxial.cpp
-               src/engine/FineCylinder.cpp
-               src/engine/FineCylinder.h
+        src/engine/fine_cylinder.tpp
+               src/engine/fine_cylinder.h
+               src/simulations/kcv_fines.cpp
 )
 
 target_link_libraries (DEMsim stdc++fs "${OpenMP_CXX_FLAGS}" Eigen3::Eigen)

@@ -14,6 +14,7 @@
 #include "Eigen/Dense"
 
 #include "engine.h"
+#include "fine_cylinder.h"
 #include "../particles/fractureable_spherical_particle.h"
 #include "../utilities/printing_functions.h"
 
@@ -29,6 +30,7 @@ DEM::Output<ForceModel, ParticleType>::Output(const std::string& directory, std:
     surfaces_(engine.surfaces_),
     contacts_(engine.contacts_),
     engine_(engine),
+    fine_cylinder_(engine.fine_cylinder_),
     current_time_(engine.get_time()),
     time_until_output_(interval),
     interval_(interval)
@@ -324,5 +326,13 @@ void DEM::Output<ForceModel, ParticleType>::write_particles_to_follow() const {
     }
 }
 
-
-
+template<typename ForceModel, typename ParticleType>
+void DEM::Output<ForceModel, ParticleType>::write_fine_cylinder() const {
+    if (fine_cylinder_) {
+        fs::path filename = directory_ / "fines.dou";
+        std::ofstream output_file;
+        output_file.open(filename, std::fstream::app);
+        output_file << current_time_.count() << ", " << fine_cylinder_->get_output_string() << "\n";
+        output_file.close();
+    }
+}

@@ -5,7 +5,6 @@
 #ifndef DEMSIM_CYLINDER_H
 #define DEMSIM_CYLINDER_H
 
-#include <array>
 #include <sstream>
 
 #include "surface_base.h"
@@ -47,6 +46,8 @@ namespace DEM {
 
         void set_point(const Vec3& point) { point_ = point; }
         void set_length(double length) { length_ = length; }
+    protected:
+        void update_bounding_box() override;
 
     private:
         using Surface<ForceModel, ParticleType>::displacement_this_inc_;
@@ -66,7 +67,7 @@ namespace DEM {
         // To allow fast functions for a common case, currently only z-aligned is supported in the collision detector!!!
         bool z_aligned_;
 
-        void update_bounding_box() override;
+
     };
 }
 

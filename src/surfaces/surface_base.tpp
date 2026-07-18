@@ -1,6 +1,7 @@
 //
 // Created by erolsson on 2018-09-02.
 //
+#pragma once
 
 #include "surface_base.h"
 
@@ -10,6 +11,7 @@
 
 #include "../utilities/file_reading_functions.h"
 #include "../utilities/printing_functions.h"
+#include "../engine/fine_cylinder.h"
 
 template<typename ForceModel, typename ParticleType>
 DEM::Surface<ForceModel, ParticleType>::Surface(std::size_t id, std::size_t collision_id, std::string  name,
@@ -83,6 +85,11 @@ double DEM::Surface<ForceModel, ParticleType>::get_normal_force() const
             normal_force += dot_product(c->get_normal_force(), get_normal(c->get_particles().first->get_position()));
         }
     }
+    if (fines_integration_point_) {
+        const auto fines_force = Vec3(0, 0, fines_integration_point_->force);
+        const auto fines_point = Vec3(0, 0, fines_integration_point_->position);
+        normal_force += dot_product(fines_force, get_normal(fines_point));
+    }
     return normal_force;
 }
 
@@ -99,9 +106,13 @@ DEM::Vec3 DEM::Surface<ForceModel, ParticleType>::get_tangential_force() const
 template<typename ForceModel, typename ParticleType>
 DEM::Vec3 DEM::Surface<ForceModel, ParticleType>::get_total_force() const
 {
-    Vec3 force = Vec3(0, 0, 0);
+    auto force = Vec3(0, 0, 0);
     for (auto const& c : contacts_.get_objects()) {
         force += c->get_normal_force() + c->get_tangential_force();
+    }
+    if (fines_integration_point_) {
+        const auto fines_force = Vec3(0, 0, fines_integration_point_->force);
+        force -= fines_force;
     }
     return -force;
 }
@@ -119,7 +130,7 @@ void DEM::Surface<ForceModel, ParticleType>::remove_contact(size_t index_of_othe
 }
 
 template<typename ForceModel, typename ParticleType>
-void DEM::Surface<ForceModel, ParticleType>::set_force_amplitude(DEM::Surface<ForceModel, ParticleType>::ForceAmpPtr
+void DEM::Surface<ForceModel, ParticleType>::set_force_amplitude(const DEM::Surface<ForceModel, ParticleType>::ForceAmpPtr&
     amplitude, char direction)
 {
      if( direction == 'x') {
@@ -162,7 +173,8 @@ std::string DEM::Surface<ForceModel, ParticleType>::restart_data() const {
        << named_print(displacement_this_inc_, "disp_this_inc") << ", "
        << named_print(rotation_this_inc_, "rot_this_inc") << ", "
        << named_print(rotation_point_, "rot_point");
-    std::string directions = "xyz";
+
+    const std::string directions = "xyz";
     for (unsigned i = 0; i != force_control_amplitudes_.size(); ++i) {
         ss << ", force_control_" << directions[i] << "=";
         if (force_control_amplitudes_[i] == nullptr) {

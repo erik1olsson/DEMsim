@@ -27,8 +27,6 @@ DEM::Viscoelastic::Viscoelastic(DEM::Viscoelastic::ParticleType *particle1,DEM::
 
     double E1 = mat1->E;
     double v1 = mat1->nu;
-    double E2 = mat1->E;
-    double v2 = mat1->nu;
     double vp1 = mat1->nup;
     double vp2 = mat2->nup;
     double Ep2 = mat2->Ep;
@@ -44,8 +42,6 @@ DEM::Viscoelastic::Viscoelastic(DEM::Viscoelastic::ParticleType *particle1,DEM::
     kT_ = 8/((2-vp1)/G1 + (2-vp2)/G2)*0.001*R0_;
     //std::cout << "KT_B " <<kT_B_;
     kB_ = (1 - v1)/(1 + v1)/(1 - 2*v1)*E1/bt_*A;
-    double G1p = Ep1/2/(1+vp1);
-    //double G2p = Ep2/2/(1+vp2);
     double tsi0particle = 1./(((1-vp1*vp1)/Ep1)+((1-vp2*vp2)/Ep2));
 
     binder_contact_ = create_binder_contact(mat1);
@@ -123,8 +119,6 @@ DEM::Viscoelastic::Viscoelastic(DEM::Viscoelastic::ParticleType *particle1, DEM:
     kparticle_=4*tsi0particle*sqrt(R0_)/3;
     yield_h_ = mat1->yield_displacement_coeff*R0_;
 
-    double G1p = Ep1/2/(1+vp1);
-
     for (unsigned i=0; i!=M; ++i)
     {
         di_.push_back(0);
@@ -136,8 +130,8 @@ DEM::Viscoelastic::Viscoelastic(DEM::Viscoelastic::ParticleType *particle1, DEM:
     }
 }
 
-DEM::Viscoelastic::Viscoelastic(DEM::Viscoelastic::ParticleType* p1, DEM::Viscoelastic::ParticleType* p2,
-                                std::chrono::duration<double>, const DEM::ParameterMap& parameters) :
+DEM::Viscoelastic::Viscoelastic(const ParticleType* p1, ParticleType*, std::chrono::duration<double>,
+    const ParameterMap& parameters) :
         kB_(parameters.get_parameter<double>("kB")),
         kT_B_(parameters.get_parameter<double>("kT_B_")),
         kparticle_(parameters.get_parameter<double>("kparticle")),
@@ -179,8 +173,8 @@ DEM::Viscoelastic::Viscoelastic(DEM::Viscoelastic::ParticleType* p1, DEM::Viscoe
     }
 }
 
-DEM::Viscoelastic::Viscoelastic(DEM::Viscoelastic::ParticleType* p, DEM::Viscoelastic::SurfaceType* s,
-                                std::chrono::duration<double>, const DEM::ParameterMap& parameters) :
+DEM::Viscoelastic::Viscoelastic(const ParticleType* p, SurfaceType*,
+                                std::chrono::duration<double>, const ParameterMap& parameters) :
 
         kB_(parameters.get_parameter<double>("kB")),
         kT_B_(parameters.get_parameter<double>("kT_B_")),

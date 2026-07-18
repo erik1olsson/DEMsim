@@ -1,6 +1,7 @@
 //
 // Created by erolsson on 2018-09-02.
 //
+#pragma once
 
 #include "cylinder.h"
 
@@ -23,7 +24,7 @@ DEM::Cylinder<ForceModel, ParticleType>::Cylinder(std::size_t id, double radius,
         closed_ends_(closed_ends),
         z_aligned_(axis_ == Vec3(0, 0, 1))
 {
-    update_bounding_box();
+    Cylinder::update_bounding_box();
 }
 
 template<typename ForceModel, typename ParticleType>
@@ -38,7 +39,7 @@ DEM::Cylinder<ForceModel, ParticleType>::Cylinder(const DEM::ParameterMap& param
         closed_ends_(parameters.get_parameter<bool>("closed_ends")),
         z_aligned_(parameters.get_parameter<bool>("z_aligned"))
 {
-    update_bounding_box();
+    Cylinder::update_bounding_box();
 }
 
 template<typename ForceModel, typename ParticleType>
@@ -47,7 +48,7 @@ DEM::Vec3 DEM::Cylinder<ForceModel, ParticleType>::get_normal(const Vec3& positi
     Vec3 n = (position - point_) - dot_product(axis_, position - point_)*axis_;
     if (n.is_zero()) {
         // Special case, we are on the central axis, any unit vector can be used as normal
-        return Vec3(1, 0, 0);
+        return {1, 0, 0};
     }
     if (inward_)
         n *= -1;

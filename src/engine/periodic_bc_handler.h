@@ -55,9 +55,9 @@ namespace DEM {
         void set_boundary_stretch(double stretch) { stretch_ = stretch; }
         void create_periodic_bc_contacts();
         void destroy_periodic_bc_contacts();
-        std::string print_periodic_bc() const;
-        std::vector<std::string> mirror_particles_output() const;
-        std::vector<std::string> restart_data() const;
+        [[nodiscard]] std::string print_periodic_bc() const;
+        [[nodiscard]] std::vector<std::string> mirror_particles_output() const;
+        [[nodiscard]] std::vector<std::string> restart_data() const;
         [[nodiscard]] std::array<Interval, 3> get_periodic_boundaries() const { return boundaries_; }
 
     private:

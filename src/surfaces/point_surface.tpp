@@ -1,6 +1,7 @@
 //
 // Created by erolsson on 2018-09-07.
 //
+#pragma once
 
 #include "point_surface.h"
 
@@ -21,7 +22,7 @@ DEM::PointSurface<ForceModel, ParticleType>::PointSurface(std::size_t id, std::v
         normal_(calculate_normal()),
         infinite_(infinite)
 {
-    update_bounding_box();
+    PointSurface::update_bounding_box();
 }
 
 
@@ -38,7 +39,7 @@ DEM::PointSurface<ForceModel, ParticleType>::PointSurface(const DEM::ParameterMa
         points_.push_back(parameters.get_vec3(point.str()));
     }
     normal_ = calculate_normal();
-    update_bounding_box();
+    PointSurface::update_bounding_box();
 }
 
 
@@ -51,20 +52,20 @@ double DEM::PointSurface<ForceModel, ParticleType>::distance_to_point(const DEM:
 template<typename ForceModel, typename ParticleType>
 DEM::Vec3 DEM::PointSurface<ForceModel, ParticleType>::vector_to_point(const Vec3& point) const
 {
-    DEM::Vec3 v = dot_product(point-points_[0], normal_)*normal_;
+    const Vec3 v = dot_product(point-points_[0], normal_)*normal_;
     if(infinite_)
         return v;
 
-    DEM::Vec3 const plane_vector = point - v;  // Vector in the same plane as the surface going from origo to the point
+    Vec3 const plane_vector = point - v;  // Vector in the same plane as the surface going from origo to the point
 
     double min_distance = 1E99;
-    DEM::Vec3 min_vector = Vec3(0, 0, 0);
+    auto min_vector = Vec3(0, 0, 0);
     bool inside = true;
 
     for (unsigned i = 0; i != points_.size(); ++i){
-        DEM::Vec3 vec{};
-        DEM::Vec3 ps = plane_vector - points_[i];    // Vector from a corner to the point in the plane of the surface
-        DEM::Vec3 edge{};
+        Vec3 vec{};
+        Vec3 ps = plane_vector - points_[i];    // Vector from a corner to the point in the plane of the surface
+        Vec3 edge{};
         if (i != points_.size() - 1)
             edge = points_[i+1] - points_[i];
         else
@@ -137,22 +138,22 @@ std::string DEM::PointSurface<ForceModel, ParticleType>::get_output_string() con
 template<typename ForceModel, typename ParticleType>
 DEM::Vec3 DEM::PointSurface<ForceModel, ParticleType>::calculate_normal() const
 {
-    DEM::Vec3 normal = cross_product(points_[1]-points_[0], points_[2]-points_[1]);
+    Vec3 normal = cross_product(points_[1]-points_[0], points_[2]-points_[1]);
     return normal.normalize();
 }
 
 template<typename ForceModel, typename ParticleType>
 void DEM::PointSurface<ForceModel, ParticleType>::update_bounding_box()
 {
-    auto x_cmp = [](const DEM::Vec3& v1, const DEM::Vec3& v2) -> bool {
+    auto x_cmp = [](const Vec3& v1, const Vec3& v2) -> bool {
         return v1.x() < v2.x();
     };
 
-    auto y_cmp = [](const DEM::Vec3& v1, const DEM::Vec3& v2) -> bool {
+    auto y_cmp = [](const Vec3& v1, const Vec3& v2) -> bool {
         return v1.y() < v2.y();
     };
 
-    auto z_cmp = [](const DEM::Vec3& v1, const DEM::Vec3& v2) -> bool {
+    auto z_cmp = [](const Vec3& v1, const Vec3& v2) -> bool {
         return v1.z() < v2.z();
     };
 
