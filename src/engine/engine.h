@@ -118,7 +118,7 @@ namespace DEM {
         [[maybe_unused]] [[nodiscard]] std::vector<ParticlePointer> get_particles() const { return particles_; };
         [[maybe_unused]] [[nodiscard]] decltype(auto) get_periodic_boundaries() const;
 
-        [[maybe_unused]] void exclude_particle_from_simulation(ParticlePointer* p, const Vec3& velocity);
+        [[maybe_unused]] void exclude_particle_from_simulation(ParticlePointer p, const Vec3& velocity);
 
         // Setters
         void set_gravity(const Vec3& g) { gravity_ = g; }
@@ -138,10 +138,10 @@ namespace DEM {
         // Functors for running a simulation until a condition is fulfilled
         class RunForTime : public RunFunctorBase {
         public:
-            RunForTime(const Engine& e, std::chrono::duration<double> time) :
+            RunForTime(const Engine& e, const std::chrono::duration<double> time) :
                 engine_{e}, start_time_{engine_.get_time()}, time_to_run_{time} {}
             ~RunForTime() override = default;
-            void reset(std::chrono::duration<double> new_run_time) {
+            void reset(const std::chrono::duration<double> new_run_time) {
                 start_time_ = engine_.get_time();
                 time_to_run_ = new_run_time;
             }

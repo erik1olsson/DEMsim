@@ -11,8 +11,8 @@
 #include "../utilities/vec3.h"
 
 template<typename ForceModel>
-DEM::SphericalParticleBase<ForceModel>::SphericalParticleBase(double radius, const DEM::Vec3& position,
-                                                              const DEM::Vec3& velocity, const MaterialBase* material,
+DEM::SphericalParticleBase<ForceModel>::SphericalParticleBase(double radius, const Vec3& position,
+                                                              const Vec3& velocity, const MaterialBase* material,
                                                               std::size_t object_id, std::size_t collision_id):
         ParticleBase<ForceModel>(4.*3.1415*radius*radius*radius/3*material->density, position, velocity, material,
                                  object_id),
@@ -24,8 +24,8 @@ DEM::SphericalParticleBase<ForceModel>::SphericalParticleBase(double radius, con
 }
 
 template<typename ForceModel>
-DEM::SphericalParticleBase<ForceModel>::SphericalParticleBase(const DEM::ParameterMap& parameters,
-                                                              DEM::MaterialBase *material):
+DEM::SphericalParticleBase<ForceModel>::SphericalParticleBase(const ParameterMap& parameters,
+                                                              MaterialBase *material):
     ParticleBase<ForceModel>(parameters, material),
     collision_id_(parameters.get_parameter<std::size_t>("collision_id")),
     radius_(parameters.get_parameter<double>("r")),
@@ -36,14 +36,14 @@ DEM::SphericalParticleBase<ForceModel>::SphericalParticleBase(const DEM::Paramet
 
 
 template<typename ForceModel>
-void DEM::SphericalParticleBase<ForceModel>::move(const DEM::Vec3& new_disp_this_inc)
+void DEM::SphericalParticleBase<ForceModel>::move(const Vec3& new_disp_this_inc)
 {
     position_ += new_disp_this_inc;
     displacement_this_inc_ = new_disp_this_inc;
 }
 
 template<typename ForceModel>
-void DEM::SphericalParticleBase<ForceModel>::rotate(const DEM::Vec3& new_rot_this_inc)
+void DEM::SphericalParticleBase<ForceModel>::rotate(const Vec3& new_rot_this_inc)
 {
     rot_this_inc_ = new_rot_this_inc;
     rot_ += new_rot_this_inc;

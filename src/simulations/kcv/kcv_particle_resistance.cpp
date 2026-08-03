@@ -44,6 +44,9 @@ void DEM::kcv_particle_resistance(const std::string& settings_file_name) {
     const auto test_particle_radius = parameters.get_parameter<double>("test_particle_radius");
     const auto test_particle_height = parameters.get_parameter<double>("test_particle_height");
     const auto pressure_levels = parameters.get_vector<double>("pressure_levels");
+    const auto loading_time = parameters.get_parameter<double>("loading_time");
+    const auto loading_distance = parameters.get_parameter<double>("loading_distance");
+    auto particle_velocity = loading_distance/loading_time;
     double stone_volume = 4*3.1415*pow(test_particle_radius, 3)/3;
     for (const auto& r: particle_radii) {
         stone_volume += 4*3.1415*pow(r, 3)/3;
@@ -136,21 +139,39 @@ void DEM::kcv_particle_resistance(const std::string& settings_file_name) {
 
     top_surface->move(Vec3(0, 0, zmax - filling_height), Vec3(0, 0, 0));
     top_surface->set_velocity(Vec3(0 ,0, -compaction_velocity));
+    std::string restart_filename;
 
-    auto output_compaction = simulator.create_output(output_directory + "/compaction/", 0.001s);
-    output_compaction->print_kinetic_energy = true;
-    output_compaction->print_surface_forces = true;
-    output_compaction->print_surface_positions = true;
     for (const auto& pressure: pressure_levels) {
+        auto simulator1 = EngineType(output_directory + "/" + restart_filename);
+        auto output_compaction = simulator1.create_output(output_directory + "/compaction/", 0.001s);
+        output_compaction->print_kinetic_energy = true;
+        output_compaction->print_surface_forces = true;
+        output_compaction->print_surface_positions = true;
+
+
         output_compaction->activate();
         double comp_force = pressure*1e6*3.1415*main_cylinder_radius*main_cylinder_radius;
         EngineType::SurfaceNormalForceGreater surface_normal_force_greater(top_surface, comp_force);
-        simulator.run(surface_normal_force_greater);
+        simulator1.run(surface_normal_force_greater);
 
         output_compaction->deactivate();
         std::stringstream output_name;
         output_name << "particle_resistance_p=" << pressure << "MPa";
-        auto output_particle = simulator.create_output(output_directory + "/" + output_name.str(), 0.001s);
+        auto output_particle = simulator1.create_output(output_directory + "/" + output_name.str(), 0.001s);
+
+        std::stringstream restart_filename_ss;
+        restart_filename_ss << "restart_p=" << pressure << "MPa.res";
+
+        simulator1.write_restart_file(output_directory + "/" + restart_filename);
+
+        simulator1.exclude_particle_from_simulation(test_particle, Vec3(0, 0, -particle_velocity));
+        EngineType::RunForTime run_for_time(simulator1, std::chrono::duration<double>(loading_time));
+        simulator1.run(run_for_time);
+
+        test_particle->set_velocity(Vec3(0,0, particle_velocity));
+        run_for_time.reset(std::chrono::duration<double>(loading_time));
+        simulator1.run(run_for_time);
+
 
     }
 }

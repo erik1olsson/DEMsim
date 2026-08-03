@@ -11,3 +11,6 @@ unloading_exponent=1.7
 compaction_velocity=0.001
 test_particle_radius=0.008
 test_particle_height=0.024
+pressure_levels=0.1, 0.5, 1, 2.5, 5. 7.5
+loading_time=1.
+loading_distance=0.008

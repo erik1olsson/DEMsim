@@ -1,6 +1,7 @@
 //
 // Created by erolsson on 2019-01-19.
 //
+#pragma once
 
 #include "fractureable_spherical_particle.h"
 
@@ -19,9 +20,16 @@ DEM::FractureableSphericalParticle<ForceModel>::FractureableSphericalParticle(do
 
 }
 
+template<typename ForceModel>
+DEM::FractureableSphericalParticle<ForceModel>::FractureableSphericalParticle(const ParameterMap& parameters,
+    MaterialBase *material)
+        :SphericalParticleBase<ForceModel>(parameters, material) {
+
+}
+
 
 template<typename ForceModel>
-void DEM::FractureableSphericalParticle<ForceModel>::fracture_particle(const DEM::Vec3& position, double force,
+void DEM::FractureableSphericalParticle<ForceModel>::fracture_particle(const Vec3& position, double force,
         std::size_t id_of_impacter, const Vec3& normal) {
     auto crack_iter = has_crack_at_position(position - get_position());
     if (crack_iter != cracks_.end()) {
@@ -42,8 +50,8 @@ void DEM::FractureableSphericalParticle<ForceModel>::fracture_particle(const DEM
 
 template<typename ForceModel>
 std::vector<DEM::ParticleCrack>::iterator
-DEM::FractureableSphericalParticle<ForceModel>::has_crack_at_position(const DEM::Vec3& position) {
-    auto mat = dynamic_cast<const DEM::StoneMaterial*>(material_);
+DEM::FractureableSphericalParticle<ForceModel>::has_crack_at_position(const Vec3& position) {
+    auto mat = dynamic_cast<const StoneMaterial*>(material_);
     double min_crack_distance = mat->min_crack_distance;
     for(auto iter = cracks_.begin();  iter != cracks_.end(); ++iter) {
         const auto& pos = iter->get_position();

@@ -894,8 +894,8 @@ decltype(auto) Engine<ForceModel, ParticleType>::get_periodic_boundaries() const
 }
 
 template<typename ForceModel, typename ParticleType>
-void Engine<ForceModel, ParticleType>::exclude_particle_from_simulation(ParticlePointer* p, const Vec3& velocity) {
-    simulation_particles_.erase(std::remove(simulation_particles_.begin(), simulation_particles_.end().end(), p),
+void Engine<ForceModel, ParticleType>::exclude_particle_from_simulation(ParticlePointer p, const Vec3& velocity) {
+    simulation_particles_.erase(std::remove(simulation_particles_.begin(), simulation_particles_.end(), p),
         simulation_particles_.end());
     controlled_particles_.push_back(p);
     p->set_velocity(velocity);
