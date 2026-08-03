@@ -139,7 +139,8 @@ void DEM::kcv_particle_resistance(const std::string& settings_file_name) {
 
     top_surface->move(Vec3(0, 0, zmax - filling_height), Vec3(0, 0, 0));
     top_surface->set_velocity(Vec3(0 ,0, -compaction_velocity));
-    std::string restart_filename;
+    std::string restart_filename = "after_filling.res";
+    simulator.write_restart_file(output_directory + "/" + restart_filename);
 
     for (const auto& pressure: pressure_levels) {
         auto simulator1 = EngineType(output_directory + "/" + restart_filename);
@@ -168,6 +169,7 @@ void DEM::kcv_particle_resistance(const std::string& settings_file_name) {
         EngineType::RunForTime run_for_time(simulator1, std::chrono::duration<double>(loading_time));
         simulator1.run(run_for_time);
 
+        test_particle->set_velocity(Vec3(0,0, particle_velocity));
         test_particle->set_velocity(Vec3(0,0, particle_velocity));
         run_for_time.reset(std::chrono::duration<double>(loading_time));
         simulator1.run(run_for_time);
