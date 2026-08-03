@@ -13,6 +13,9 @@ namespace DEM {
     std::vector<Vec3> random_fill_cylinder(double z0, double z1, double cylinder_radius,
             const std::vector<double>& radii, double distance_between_objects=0);
 
+    std::vector<Vec3> random_fill_cylinder(double z0, double z1, double cylinder_radius,
+        const std::vector<double>& radii, std::vector<std::pair<Vec3, double>> placed_particles,
+        double distance_between_objects=0);
 
 
     std::vector<Vec3>random_fill_box(double x1, double x2, double y1, double y2, double z1, double z2,
@@ -23,8 +26,7 @@ namespace DEM {
                                      const std::string& directions="xyz");
 
 
-    bool check_overlaps(const Vec3 &point, double radius, const std::vector<DEM::Vec3> &particle_positions,
-                    const std::vector<double> &radii);
+    bool check_overlaps(const Vec3 &point, double radius, const std::vector<std::pair<Vec3, double>>& placed_particles);
 }
 
 #endif //DEMSIM_UTILITIES_H

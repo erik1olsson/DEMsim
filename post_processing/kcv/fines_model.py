@@ -98,14 +98,13 @@ def residual_loading(par, density, pressure):
     p_model = model(density[:imax], par[0], par[1], par[2])
     return np.sum((p_model- pressure[:imax])**2)
 
+
 def residual_unloading(par, density, pressure):
     par = abs(par)
     par[2] = 4.20438353e+00
     imax = np.argmax(density)
     p_model = model(density[imax:], par[0], par[1], par[2])
     return np.sum((p_model- pressure[imax:])**2)
-
-
 
 
 def get_particle_volume(distribution_file):

@@ -4,15 +4,15 @@
 
 #include <sstream>
 
-#include "simulations.h"
+#include "../simulations.h"
 
-#include "../engine/engine.h"
+#include "../../engine/engine.h"
 
-#include "../contact_models/stone_material_contact.h"
-#include "../materials/stone_material.h"
+#include "../../contact_models/stone_material_contact.h"
+#include "../../materials/stone_material.h"
 
-#include "../utilities/file_reading_functions.h"
-#include "../utilities/filling_functions.h"
+#include "../../utilities/file_reading_functions.h"
+#include "../../utilities/filling_functions.h"
 
 void DEM::kcv_uniaxial(const std::string& settings_file_name) {
     using namespace DEM;

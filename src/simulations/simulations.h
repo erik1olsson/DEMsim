@@ -30,6 +30,7 @@ namespace DEM {
     void asphalt_shear_box_bonded(const std::string& settings_file_name);
     void kcv_uniaxial(const std::string& settings_file_name);
     void kcv_fines(const std::string& settings_file_name);
+    void kcv_particle_resistance(const std::string& settings_file_name);
 
 
     std::map<std::string, SimulationFunctionPtr> valid_simulations();

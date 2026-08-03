@@ -75,10 +75,14 @@ namespace DEM {
             material_.update(D);
         }
 
-        [[nodiscard]] double density() const { return fine_mass/(p2_.position - p1_.position)/3.1415/radius_/radius_;  }
+        [[nodiscard]] double density() const {
+            double slice_volume = 3.1415*(p2_.position - p1_.position)*radius_*radius_;
+            return fine_mass/(slice_volume - particle_volume);
+        }
         [[nodiscard]] double relative_density() const {return material_.density();}
         [[nodiscard]] double pressure() const {return material_.pressure(); }
         [[nodiscard]] double mass() const {return  fine_mass; }
+        double particle_volume = 0;
 
     private:
         const FinesIntegrationPoint<ForceModel, ParticleType>& p1_;
@@ -92,7 +96,8 @@ namespace DEM {
     template<typename ForceModel, typename ParticleType>
     class FineCylinder {
     public:
-        FineCylinder(double radius, double height, double fine_mass, double stone_density, std::size_t numpoints);
+        FineCylinder(double radius, double height, double fine_mass, double stone_density, std::size_t numpoints,
+            const std::vector<ParticleType*> particles);
         void update(std::chrono::duration<double> dt, const Vec3& gravity);
         void connect_surface(PointSurface<ForceModel, ParticleType>* surface, std::size_t point);
         [[nodiscard]] std::string get_output_string() const;
@@ -107,6 +112,7 @@ namespace DEM {
         std::vector<FinesIntegrationPoint<ForceModel, ParticleType>> integration_points_;
         std::vector<double> velocities_;
         std::vector<double> accelerations_;
+        const std::vector<ParticleType*>& particles_;
     };
 }
 

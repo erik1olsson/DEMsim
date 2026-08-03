@@ -19,7 +19,7 @@ plt.rc('font', **{'family': 'serif', 'serif': ['Computer Modern Roman'],
 
 def main():
     density = 2650
-    target_mass = 1.
+    target_mass = 0.5
 
     rmax_val = 8
     rmin_val = 0.5

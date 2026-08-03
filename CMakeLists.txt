@@ -92,10 +92,11 @@ add_executable(DEMsim
                src/contact_models/hertz_with_bonds.cpp
                src/simulations/asphalt_shear_box.cpp
                src/simulations/asphalt_shear_box_bonded.cpp
-               src/simulations/kcv_uniaxial.cpp
-        src/engine/fine_cylinder.tpp
+               src/simulations/kcv/kcv_uniaxial.cpp
+               src/engine/fine_cylinder.tpp
                src/engine/fine_cylinder.h
-               src/simulations/kcv_fines.cpp
+               src/simulations/kcv/kcv_fines.cpp
+               src/simulations/kcv/kcv_particle_resistance.cpp
 )
 
 target_link_libraries (DEMsim stdc++fs "${OpenMP_CXX_FLAGS}" Eigen3::Eigen)

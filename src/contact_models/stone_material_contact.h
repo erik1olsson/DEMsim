@@ -17,6 +17,10 @@ namespace DEM {
     public:
         StoneMaterialContact(ParticleType* particle1, ParticleType* particle2, std::chrono::duration<double>);
         StoneMaterialContact(ParticleType* particle1, SurfaceType* surface, std::chrono::duration<double>);
+
+        StoneMaterialContact(ParticleType*, ParticleType*, SurfaceType*, std::chrono::duration<double>,
+            const ParameterMap& parameters);
+
         void update(double dh, const Vec3& dt, const Vec3& rot, const Vec3& normal);
         [[nodiscard]] double get_overlap() const { return h_; }
         [[nodiscard]] double get_normal_force() const { return FN_; }
@@ -27,6 +31,7 @@ namespace DEM {
 
         static void set_increment(std::chrono::duration<double>) {}
         [[nodiscard]] std::string get_output_string() const;
+        [[nodiscard]] std::string restart_data() const;
 
     private:
         double update_normal_force(double dh);
@@ -79,12 +84,12 @@ namespace DEM {
         double kT_;
 
         // Parameters for the rolling resistance model
-        double mu_r_;
-        double kr_;
+        double mu_r_ = 0;
+        double kr_ = 0;
         Vec3 Tr_ {Vec3{}};
 
-        double fracture_strength_p1_;
-        double fracture_strength_p2_;
+        double fracture_strength_p1_ = 0;
+        double fracture_strength_p2_ = 0;
         std::size_t id2_;
     };
 }

@@ -19,14 +19,11 @@ namespace DEM {
         using SurfaceType = Surface<StorakersMesarovicJohnson, ParticleType>;
 
     public:
-        StorakersMesarovicJohnson(ParticleType* particle1, ParticleType* particle2, std::chrono::duration<double>);
-        StorakersMesarovicJohnson(ParticleType* particle1, SurfaceType* surface, std::chrono::duration<double>);
+        StorakersMesarovicJohnson(const ParticleType* particle1, const ParticleType* particle2, std::chrono::duration<double>);
+        StorakersMesarovicJohnson(const ParticleType* particle1, SurfaceType* surface, std::chrono::duration<double>);
 
-        StorakersMesarovicJohnson(ParticleType*, ParticleType*, std::chrono::duration<double>,
+        StorakersMesarovicJohnson(ParticleType*, ParticleType*, SurfaceType*, std::chrono::duration<double>,
                                   const ParameterMap& parameters);
-        StorakersMesarovicJohnson(ParticleType*, SurfaceType*, std::chrono::duration<double>,
-                                  const ParameterMap& parameters);
-
 
         void update(double dh, const Vec3& dt, const Vec3&, const Vec3& normal);
 

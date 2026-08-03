@@ -11,8 +11,7 @@
 #include "../materials/elastic_ideal_plastic_material.h"
 #include "../utilities/printing_functions.h"
 
-DEM::StorakersMesarovicJohnson::StorakersMesarovicJohnson(DEM::StorakersMesarovicJohnson::ParticleType* particle1,
-                                                          DEM::StorakersMesarovicJohnson::ParticleType* particle2,
+DEM::StorakersMesarovicJohnson::StorakersMesarovicJohnson(const ParticleType* particle1, const ParticleType* particle2,
                                                           std::chrono::duration<double>)
 {
     auto mat1 = dynamic_cast<const ElasticIdealPlasticMaterial*>(particle1->get_material());
@@ -34,8 +33,7 @@ DEM::StorakersMesarovicJohnson::StorakersMesarovicJohnson(DEM::StorakersMesarovi
     mu_ = (mat1->mu + mat2->mu)/2;
 }
 
-DEM::StorakersMesarovicJohnson::StorakersMesarovicJohnson(DEM::StorakersMesarovicJohnson::ParticleType* particle1,
-                                                          DEM::StorakersMesarovicJohnson::SurfaceType*,
+DEM::StorakersMesarovicJohnson::StorakersMesarovicJohnson(const ParticleType* particle1, SurfaceType*,
                                                           std::chrono::duration<double>)
 {
     auto mat1 = dynamic_cast<const ElasticIdealPlasticMaterial*>(particle1->get_material());
@@ -53,10 +51,9 @@ DEM::StorakersMesarovicJohnson::StorakersMesarovicJohnson(DEM::StorakersMesarovi
     mu_ = mat1->mu_wall;
 }
 
-DEM::StorakersMesarovicJohnson::StorakersMesarovicJohnson(DEM::StorakersMesarovicJohnson::ParticleType*,
-                                                          DEM::StorakersMesarovicJohnson::ParticleType*,
+DEM::StorakersMesarovicJohnson::StorakersMesarovicJohnson(ParticleType*, ParticleType*, SurfaceType*,
                                                           std::chrono::duration<double>,
-                                                          const DEM::ParameterMap& parameters) :
+                                                          const ParameterMap& parameters) :
     h_(parameters.get_parameter<double>("h")),
     h_max_(parameters.get_parameter<double>("h_max")),
     a_(parameters.get_parameter<double>("a")),
@@ -74,29 +71,7 @@ DEM::StorakersMesarovicJohnson::StorakersMesarovicJohnson(DEM::StorakersMesarovi
     // Empty constructor
 }
 
-DEM::StorakersMesarovicJohnson::StorakersMesarovicJohnson(DEM::StorakersMesarovicJohnson::ParticleType*,
-                                                          DEM::StorakersMesarovicJohnson::SurfaceType*,
-                                                          std::chrono::duration<double>,
-                                                          const DEM::ParameterMap& parameters):
-    h_(parameters.get_parameter<double>("h")),
-    h_max_(parameters.get_parameter<double>("h_max")),
-    a_(parameters.get_parameter<double>("a")),
-    a_max_(parameters.get_parameter<double>("a_max")),
-    k_(parameters.get_parameter<double>("k")),
-    ku_(parameters.get_parameter<double>("ku")),
-    hu_max_(parameters.get_parameter<double>("hu_max")),
-    R0_(parameters.get_parameter<double>("R0")),
-    kT_(parameters.get_parameter<double>("kT")),
-    mu_(parameters.get_parameter<double>("mu")),
-    F_(parameters.get_parameter<double>("F")),
-    FT_(parameters.get_vec3("FT")),
-    uT_(parameters.get_vec3("uT"))
-{
-    // Empty constructor
-}
-
-
-void DEM::StorakersMesarovicJohnson::update(double dh, const DEM::Vec3& dt, const Vec3&, const DEM::Vec3& normal)
+void DEM::StorakersMesarovicJohnson::update(double dh, const Vec3& dt, const Vec3&, const Vec3& normal)
 {
     update_normal_force(dh);
     update_tangential_force(dt, normal);

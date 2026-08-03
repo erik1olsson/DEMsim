@@ -52,12 +52,13 @@ inline void DEM::FineMaterial::update(double density) {
 
 template<typename ForceModel, typename ParticleType>
 DEM::FineCylinder<ForceModel, ParticleType>::FineCylinder(const double radius, double height, double fine_mass, double
-                                                          stone_density, std::size_t numpoints)
-    :radius_(radius){
+                                                          stone_density, std::size_t numpoints,
+                                                          const std::vector<ParticleType*> particles)
+    :radius_(radius), particles_(particles){
     integration_points_.reserve(numpoints);
     integration_points_.emplace_back(0);
     velocities_ = std::vector<double>(numpoints, 0);
-    accelerations_ = std::vector(numpoints, -9.82);
+    accelerations_ = std::vector(numpoints, -9.82);;
     const auto n_slices = static_cast<double>(numpoints -1 );
     for (std::size_t i = 1; i != numpoints; ++i) {
         double ip_pos = static_cast<double>(i)*height/n_slices;

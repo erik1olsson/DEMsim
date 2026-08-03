@@ -99,7 +99,7 @@ template<typename ForceModel, typename ParticleType>
 void DEM::Output<ForceModel, ParticleType>::run_output(const std::chrono::duration<double>& increment)
 {
     using namespace std::chrono_literals;
-    if (time_until_output_ - increment < -1ns || current_time_ == 0s) {
+    if ((time_until_output_ - increment < -1ns || current_time_ == 0s) && active_) {
         time_until_output_ = interval_;
         run_output();
     }

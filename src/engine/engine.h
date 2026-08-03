@@ -81,7 +81,7 @@ namespace DEM {
         FineCylinder<ForceModel, ParticleType>* create_fine_cylinder(double radius, double height, double fine_mass, double stone_density,
             std::size_t numpoints);
 
-        OutputPointerType create_output(std::string directory, std::chrono::duration<double> interval);
+        OutputPointerType create_output(const std::string &directory, std::chrono::duration<double> interval);
         OutputPointerType create_output(std::string directory, std::chrono::duration<double> interval,
                                         const std::string& name);
         void remove_output(const OutputPointerType& output_to_remove);
@@ -92,7 +92,7 @@ namespace DEM {
         static void remove_force_control_on_surface(Surface<ForceModel, ParticleType>* surface, char direction);
 
         [[maybe_unused]] std::pair<double, std::size_t> set_viscocity_parameters(double viscosity, size_t order=1);
-        [[maybe_unused]] void remove_viscosity_parameters(std::pair<double, std::size_t> parameter_pair);
+        [[maybe_unused]] void remove_viscosity_parameters(const std::pair<double, std::size_t> &parameter_pair);
 
         [[maybe_unused]] void add_periodic_boundary_condition(char axis, double boundary_min, double boundary_max);
         [[maybe_unused]] void set_periodic_boundary_condition_strain_rate(char axis, double strain_rate);
@@ -117,6 +117,8 @@ namespace DEM {
         [[maybe_unused]] [[nodiscard]] ParticlePointer get_particle(std::size_t id) const;
         [[maybe_unused]] [[nodiscard]] std::vector<ParticlePointer> get_particles() const { return particles_; };
         [[maybe_unused]] [[nodiscard]] decltype(auto) get_periodic_boundaries() const;
+
+        [[maybe_unused]] void exclude_particle_from_simulation(ParticlePointer* p, const Vec3& velocity);
 
         // Setters
         void set_gravity(const Vec3& g) { gravity_ = g; }
@@ -322,6 +324,8 @@ namespace DEM {
 
         std::vector<MaterialBase*> materials_{};
         std::vector<ParticleType*> particles_{};
+        std::vector<ParticleType*> simulation_particles_{};
+        std::vector<ParticleType*> controlled_particles_{};
         std::vector<SurfaceType*> surfaces_{};
         ContactMatrix<ContactType> contacts_{};
         std::vector<OutputPointerType> outputs_{};

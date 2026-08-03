@@ -8,8 +8,7 @@
 
 #include "../materials/stone_material.h"
 
-DEM::StoneMaterialContact::StoneMaterialContact(DEM::StoneMaterialContact::ParticleType* particle1,
-                                                DEM::StoneMaterialContact::ParticleType* particle2,
+DEM::StoneMaterialContact::StoneMaterialContact(ParticleType* particle1, ParticleType* particle2,
                                                 std::chrono::duration<double>) :
                                                 p1_{particle1}, p2_{particle2}
 {
@@ -51,8 +50,7 @@ DEM::StoneMaterialContact::StoneMaterialContact(DEM::StoneMaterialContact::Parti
     assign_fracture_strengths();
 }
 
-DEM::StoneMaterialContact::StoneMaterialContact(DEM::StoneMaterialContact::ParticleType* particle1,
-                                                DEM::StoneMaterialContact::SurfaceType* surface,
+DEM::StoneMaterialContact::StoneMaterialContact(ParticleType* particle1, SurfaceType* surface,
                                                 std::chrono::duration<double>) : p1_{particle1}, p2_{nullptr}
 {
     auto mat1 = dynamic_cast<const StoneMaterial*>(particle1->get_material());
@@ -85,6 +83,46 @@ DEM::StoneMaterialContact::StoneMaterialContact(DEM::StoneMaterialContact::Parti
     assign_fracture_strengths();
 
     id2_ = surface->get_id();
+}
+
+DEM::StoneMaterialContact::StoneMaterialContact(ParticleType* p1, ParticleType* p2, SurfaceType*,
+    std::chrono::duration<double>,  const ParameterMap &parameters) :
+    p1_(p1),
+    p2_(p2),
+    FN_(parameters.get_parameter("FN")),
+    a_(parameters.get_parameter("a")),
+    R0_(parameters.get_parameter("R0")),
+    Fs_(parameters.get_parameter("Fs")),
+    hs_(parameters.get_parameter("hs")),
+    hlinear_(parameters.get_parameter("hlinear")),
+    h_(parameters.get_parameter("h")),
+    hmax_(parameters.get_parameter("hmax")),
+    Fmax_(parameters.get_parameter("Fmax")),
+    hp_(parameters.get_parameter("hp")),
+    hl_(parameters.get_parameter("hl")),
+    h1_(parameters.get_parameter("h1")),
+    FT_(parameters.get_vec3("FT")),
+    old_dT_(parameters.get_vec3("old_dT")),
+    load_var_tangential_(parameters.get_vec3("load_var_tangential")),
+    load_var_normal_(parameters.get_parameter("load_var_normal")),
+    turning_point_(parameters.get_parameter<int>("turning_point")),
+    FT0({parameters.get_vec3("FTO_1"), parameters.get_vec3("FTO_2")}),
+    kp_(parameters.get_parameter("kp")),
+    ke_(parameters.get_parameter("ke")),
+    kl_(parameters.get_parameter("kl")),
+    ku_(parameters.get_parameter("ku")),
+    unloading_exp_(parameters.get_parameter("unloading_exp")),
+    mu_(parameters.get_parameter("mu")),
+    old_mu_(parameters.get_parameter("old_mu")),
+    kT_(parameters.get_parameter("kT")),
+    mu_r_(parameters.get_parameter("mu_r")),
+    kr_(parameters.get_parameter("kr")),
+    Tr_(parameters.get_vec3("Tr")),
+    fracture_strength_p1_(parameters.get_parameter("fracture_strength_p1")),
+    fracture_strength_p2_(parameters.get_parameter("fracture_strength_p2")),
+    id2_(parameters.get_parameter<std::size_t>("id2"))
+{
+
 }
 
 void DEM::StoneMaterialContact::update(double h, const DEM::Vec3& dt, const Vec3& rot, const DEM::Vec3& normal)
@@ -193,17 +231,13 @@ void DEM::StoneMaterialContact::update_tangential_force(const Vec3& dt, const Ve
             if (d_mu_FN <= 0 || load_var_tangential_.length() > load_var_normal_) {
                 if (dot_product(dt, old_dT_) >= 0. && FT0[0].is_zero()) {     // Loading of the contact
                     q = 1 - (FT_.length() + d_mu_FN)/(mu_*FN_);
-                    // std::cout << "loading\n";
                 }
                 else if (turning_point_ < 0) {                    // Unloading
                     q = 1 - ((- FT0[0] + FT_).length() + 2*d_mu_FN)/(2*mu_*FN_);
-                    // std::cout << "unloading " << (FT0[0] - FT_).length() << ", " << 2*d_mu_FN << ", "
-                    //          << FT0[0] << "," << FT_ << "\n";
                     sgn = -1;
                 }
                 else {                                                        // Reloading
                     q = 1 - ((- FT_ + FT0[1]).length() + 2*d_mu_FN)/(2*mu_*FN_);
-                    // std::cout << "reloading\n";
                 }
                 if (d_mu_FN < 0) {
                     load_var_tangential_.set_zero();
@@ -227,8 +261,6 @@ void DEM::StoneMaterialContact::update_tangential_force(const Vec3& dt, const Ve
             old_dT_ = dt;
             if (FT_.length() > mu_*FN_)
                 FT_ = mu_*FN_*FT_.normalize();
-            // std::cout << FT_ << ", " << dt << ", " << h_ << ", "  << d_mu_FN*(1 - q) << ", " << kt
-            //          << ", "  << q << ", " << FN_*0.3 - FT_.length() <<  "\n";
         }
     }
     else  {
@@ -276,5 +308,43 @@ void DEM::StoneMaterialContact::check_fracture(const Vec3& normal) {
 std::string DEM::StoneMaterialContact::get_output_string() const {
     std::stringstream ss;
     ss << hmax_ << ", " << hs_ << ", " << hlinear_ << ", " << hp_ << ", " << FN_;
+    return ss.str();
+}
+
+std::string DEM::StoneMaterialContact::restart_data() const {
+    std::ostringstream ss;
+    ss << named_print(FN_, "FN") << ", "
+       << named_print(a_, "a") << ", "
+       << named_print(R0_, "R0") << ", "
+       << named_print(Fs_, "Fs") << ", "
+       << named_print(hs_, "hs") << ", "
+       << named_print(hlinear_, "hlinear") << ", "
+       << named_print(h_, "h") << ", "
+       << named_print(hmax_, "hmax") << ", "
+       << named_print(Fmax_, "Fmax") << ", "
+       << named_print(hp_, "hp") << ", "
+       << named_print(hl_, "hl") << ", "
+       << named_print(h1_, "h1") << ", "
+       << named_print(FT_, "FT") << ", "
+       << named_print(old_dT_, "old_dT") << ", "
+       << named_print(load_var_tangential_, "load_var_tangential") << ", "
+       << named_print(load_var_normal_, "load_var_normal") << ", "
+       << named_print(turning_point_, "turning_point") << ", "
+       << named_print(FT0[0], "FT0_1") << ", "
+       << named_print(FT0[1], "FT0_2") << ", "
+       << named_print(kp_, "kp") << ", "
+       << named_print(ke_, "ke") << ", "
+       << named_print(kl_, "kl") << ", "
+       << named_print(ku_, "ku") << ", "
+       << named_print(unloading_exp_, "unloading_exp") << ", "
+       << named_print(mu_, "mu") << ", "
+       << named_print(old_mu_, "old_mu") << ", "
+       << named_print(kT_, "kT") << ", "
+       << named_print(mu_r_, "mu_r") << ", "
+       << named_print(kr_, "kr") << ", "
+       << named_print(Tr_, "Tr") << ", "
+       << named_print(fracture_strength_p1_, "fracture_strength_p1") << ", "
+       << named_print(fracture_strength_p2_, "fracture_strength_p2") << ", "
+       << named_print(id2_, "id2");
     return ss.str();
 }

@@ -44,13 +44,13 @@ DEM::Contact<ForceModel, ParticleType>::Contact(ParticleType* particle1, Surface
 template<typename ForceModel, typename ParticleType>
 DEM::Contact<ForceModel, ParticleType>::Contact(ParticleType *particle1, ParticleType *particle2,
                                                 std::chrono::duration<double> increment,
-                                                const DEM::ParameterMap& parameters) :
+                                                const ParameterMap& parameters) :
     p1_(particle1),
     p2_(particle2),
     surface_(nullptr),
     r2_(particle1->get_radius() + particle2->get_radius()),
     position_divider_(2),
-    force_model_(particle1, particle2, increment, parameters),
+    force_model_(particle1, particle2, nullptr, increment, parameters),
     distance_function(&Contact::calculate_distance_vector_particle),
     tangential_function(&Contact::calculate_tangential_vector_particle),
     rotation_function(&Contact::calculate_rotation_vector_particle)
@@ -61,13 +61,13 @@ DEM::Contact<ForceModel, ParticleType>::Contact(ParticleType *particle1, Particl
 template<typename ForceModel, typename ParticleType>
 DEM::Contact<ForceModel, ParticleType>::Contact(ParticleType *particle1, SurfaceType *surface,
                                                 std::chrono::duration<double> increment,
-                                                const DEM::ParameterMap& parameters) :
+                                                const ParameterMap& parameters) :
     p1_(particle1),
     p2_(nullptr),
     surface_(surface),
     r2_(particle1->get_radius()),
     position_divider_(1),
-    force_model_(particle1, surface, increment, parameters),
+    force_model_(particle1, nullptr, surface, increment, parameters),
     distance_function(&Contact::calculate_distance_vector_surface),
     tangential_function(&Contact::calculate_tangential_vector_surface),
     rotation_function(&Contact::calculate_rotation_vector_surface)

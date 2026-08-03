@@ -10,16 +10,17 @@
 
 #include "../engine/periodic_bc_handler.h"
 
-std::vector<DEM::Vec3> DEM::random_fill_cylinder(double z0, double z1, double cylinder_radius,
-        const std::vector<double>& radii, double distance_between_objects)
+std::vector<Vec3> DEM::random_fill_cylinder(double z0, double z1, double cylinder_radius,
+        const std::vector<double>& radii, std::vector<std::pair<Vec3, double>> placed_particles,
+        double distance_between_objects)
 {
     std::vector<Vec3> particle_positions;
     std::random_device random_device;
     std::default_random_engine rand_engine(random_device());
     for (auto r : radii) {
-        std::uniform_real_distribution<double> dist_r(-cylinder_radius+r + distance_between_objects,
+        std::uniform_real_distribution dist_r(-cylinder_radius+r + distance_between_objects,
                                                       cylinder_radius-r - distance_between_objects);
-        std::uniform_real_distribution<double> dist_z(z0+r + distance_between_objects, z1-r - distance_between_objects);
+        std::uniform_real_distribution dist_z(z0+r + distance_between_objects, z1-r - distance_between_objects);
         bool overlapping = true;
         Vec3 position {};
         while(overlapping) {
@@ -27,24 +28,30 @@ std::vector<DEM::Vec3> DEM::random_fill_cylinder(double z0, double z1, double cy
             position.y() = dist_r(rand_engine);
             position.z() = dist_z(rand_engine);
 
-            //Check if a particle at the chosen position overlaps with an other
+            //Check if a particle at the chosen position overlaps with another
             if (position.x()*position.x()+position.y()*position.y() <
                    (cylinder_radius - r - distance_between_objects)*(cylinder_radius - r - distance_between_objects)) {
-                overlapping = check_overlaps(position, r + distance_between_objects, particle_positions, radii);
+                overlapping = check_overlaps(position, r + distance_between_objects, placed_particles);
             }
         }
-
+        placed_particles.emplace_back(position, r);
         particle_positions.push_back(position);
     }
     return particle_positions;
 }
 
-bool DEM::check_overlaps(const DEM::Vec3& point, double radius, const std::vector<DEM::Vec3>& particle_positions,
-                        const std::vector<double>& radii)
+
+std::vector<Vec3> DEM::random_fill_cylinder(double z0, double z1, double cylinder_radius,
+        const std::vector<double>& radii, double distance_between_objects) {
+    std::vector<std::pair<Vec3, double>> placed_particles;
+    return random_fill_cylinder(z0, z1, cylinder_radius, radii, placed_particles, distance_between_objects);
+}
+
+
+bool DEM::check_overlaps(const Vec3& point, double radius, const std::vector<std::pair<Vec3, double>>& placed_particles)
 {
-    for (unsigned i = 0; i != particle_positions.size(); ++i) {
-        Vec3 position_i = particle_positions[i];
-        if ((radii[i] + radius - (point-position_i).length()) > 0.) {
+    for (auto [position_i, r_i] : placed_particles) {
+        if (r_i + radius - (point-position_i).length() > 0.) {
             return true;
         }
     }
@@ -52,12 +59,12 @@ bool DEM::check_overlaps(const DEM::Vec3& point, double radius, const std::vecto
 }
 
 
-
-std::vector<DEM::Vec3> DEM::random_fill_box(double x1, double x2, double y1, double y2, double z1, double z2,
+std::vector<Vec3> DEM::random_fill_box(double x1, double x2, double y1, double y2, double z1, double z2,
                                        const std::vector<double>& radii, double delta) {
     std::vector<Vec3> particle_positions;
     std::random_device random_device;
     std::default_random_engine rand_engine(0); //(random_device());
+    std::vector<std::pair<Vec3, double>> placed_particles;
     for (auto r : radii) {
         std::uniform_real_distribution<double> dist_x(x1 + r + delta, x2 - r - delta);
         std::uniform_real_distribution<double> dist_y(y1 + r + delta, y2 - r - delta);
@@ -69,24 +76,27 @@ std::vector<DEM::Vec3> DEM::random_fill_box(double x1, double x2, double y1, dou
             position.x() = dist_x(rand_engine);
             position.y() = dist_y(rand_engine);
             position.z() = dist_z(rand_engine);
-            //Check if a particle at the chosen position overlaps with an other
-            overlapping = check_overlaps(position, r + delta, particle_positions, radii);
+            //Check if a particle at the chosen position overlaps withan other
+            overlapping = check_overlaps(position, r + delta, placed_particles);
         }
-
+        placed_particles.emplace_back(position, r);
         particle_positions.push_back(position);
     }
     return particle_positions;
 }
 
-std::vector<DEM::Vec3> DEM::random_fill_box_periodic(double x1, double x2, double y1, double y2, double z1, double z2,
+
+std::vector<Vec3> DEM::random_fill_box_periodic(double x1, double x2, double y1, double y2, double z1, double z2,
                                             const std::vector<double>& radii, double delta,
                                             const std::string& directions) {
     std::vector<Vec3> particle_positions;
-    std::vector<Vec3> mirror_positions;
+    std::vector<std::pair<Vec3, double>>  mirror_positions;
     std::random_device random_device;
     std::default_random_engine rand_engine(0); //(random_device());
+    std::vector<std::pair<Vec3, double>> placed_particles;
     std::array<bool, 3> periodic_directions = {false, false, false};
     std::array<Interval, 3> periodic_boundaries;
+
     for(const auto& dir: directions) {
         if (dir == 'x') {
             periodic_directions[0] = true;
@@ -105,25 +115,25 @@ std::vector<DEM::Vec3> DEM::random_fill_box_periodic(double x1, double x2, doubl
         }
     }
     for (auto r : radii) {
-        std::uniform_real_distribution<double> dist_x(x1 + delta + !periodic_directions[0]*r,
+        std::uniform_real_distribution dist_x(x1 + delta + !periodic_directions[0]*r,
                                                       x2 - delta - !periodic_directions[0]*r);
-        std::uniform_real_distribution<double> dist_y(y1 + delta + !periodic_directions[1]*r,
+        std::uniform_real_distribution dist_y(y1 + delta + !periodic_directions[1]*r,
                                                       y2 - delta - !periodic_directions[1]*r);
-        std::uniform_real_distribution<double> dist_z(z1 + delta + !periodic_directions[2]*r,
+        std::uniform_real_distribution dist_z(z1 + delta + !periodic_directions[2]*r,
                                                       z2 - delta - !periodic_directions[2]*r);
 
         bool overlapping = true;
         Vec3 position {};
-        std::vector<Vec3> particle_mirror_positions {};
+        std::vector<std::pair<Vec3, double>> particle_mirror_positions {};
         while(overlapping) {
             particle_mirror_positions.clear();
             position.x() = dist_x(rand_engine);
             position.y() = dist_y(rand_engine);
             position.z() = dist_z(rand_engine);
-            //Check if a particle at the chosen position overlaps with an other
-            overlapping = check_overlaps(position, r + delta, particle_positions, radii);
+            //Check if a particle at the chosen position overlaps with another
+            overlapping = check_overlaps(position, r + delta, placed_particles);
             if (!overlapping) {
-                overlapping = check_overlaps(position, r + delta, mirror_positions, radii);
+                overlapping = check_overlaps(position, r + delta, mirror_positions);
             }
 
             if (!overlapping) {
@@ -139,7 +149,7 @@ std::vector<DEM::Vec3> DEM::random_fill_box_periodic(double x1, double x2, doubl
                             Vec3 new_position = position;
                             new_position[axis] -= (periodic_boundaries[axis].max
                                                    - periodic_boundaries[axis].min)*d1[axis]/(std::abs(d1[axis]));
-                            particle_mirror_positions.push_back(new_position);
+                            particle_mirror_positions.emplace_back(new_position, r);
 
                         }
                     }
@@ -154,7 +164,7 @@ std::vector<DEM::Vec3> DEM::random_fill_box_periodic(double x1, double x2, doubl
                                                  - periodic_boundaries[idx[0]].min)*d1[idx[0]]/(std::abs(d1[idx[0]]));
                         new_position[idx[1]] -= (periodic_boundaries[idx[1]].max
                                                  - periodic_boundaries[idx[1]].min)*d1[idx[0]]/(std::abs(d1[idx[0]]));
-                        particle_mirror_positions.push_back(new_position);
+                        particle_mirror_positions.emplace_back(new_position, r);
                     }
                 }
                 if (active_directions[0] && active_directions[1] && active_directions[2]) {
@@ -163,17 +173,18 @@ std::vector<DEM::Vec3> DEM::random_fill_box_periodic(double x1, double x2, doubl
                         new_position[i] -= (periodic_boundaries[i].max
                                             - periodic_boundaries[i].min)*d1[i]/(std::abs(d1[i]));
                     }
-                    particle_mirror_positions.push_back(new_position);
+                    particle_mirror_positions.emplace_back(new_position, r);
                 }
             }
             for (const auto& mirror_p: particle_mirror_positions){
-                overlapping = overlapping || check_overlaps(mirror_p, r + delta, mirror_positions, radii);
+                overlapping = overlapping || check_overlaps(mirror_p.first, r + delta, mirror_positions);
                 if (!overlapping) {
-                    overlapping = check_overlaps(mirror_p, r + delta, particle_positions, radii);
+                    overlapping = check_overlaps(mirror_p.first, r + delta, placed_particles);
                 }
             }
         }
         particle_positions.push_back(position);
+        placed_particles.emplace_back(position, r);
         mirror_positions.insert(mirror_positions.end(), particle_mirror_positions.begin(),
                                 particle_mirror_positions.end());
     }

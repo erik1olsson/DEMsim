@@ -51,8 +51,11 @@ namespace DEM {
         [[nodiscard]] std::string restart_data() const;
         void set_new_directory(const std::string& directory);
         void add_particle_to_follow(std::size_t particle_id);
+        void activate() {active_ = true; }
+        void deactivate() {active_ = false; }
 
     private:
+        bool active_ = true;
         using OutputFunPtr = void (Output::*)() const;
         using FuncVec = std::vector<std::pair<bool&, OutputFunPtr>>;
         std::string name_;

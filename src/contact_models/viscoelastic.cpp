@@ -130,7 +130,7 @@ DEM::Viscoelastic::Viscoelastic(DEM::Viscoelastic::ParticleType *particle1, DEM:
     }
 }
 
-DEM::Viscoelastic::Viscoelastic(const ParticleType* p1, ParticleType*, std::chrono::duration<double>,
+DEM::Viscoelastic::Viscoelastic(const ParticleType* p1, ParticleType*, SurfaceType*,  std::chrono::duration<double>,
     const ParameterMap& parameters) :
         kB_(parameters.get_parameter<double>("kB")),
         kT_B_(parameters.get_parameter<double>("kT_B_")),
@@ -161,49 +161,6 @@ DEM::Viscoelastic::Viscoelastic(const ParticleType* p1, ParticleType*, std::chro
 {
     material = dynamic_cast<const ElectrodeMaterial *>(p1->get_material());
     M = parameters.get_parameter<unsigned>("M");
-    for (unsigned i=0; i != M; ++i) {
-        tau_i.push_back(parameters.get_parameter<double>("tau_" + std::to_string(i)));
-        alpha_i.push_back(parameters.get_parameter<double>("alpha_" + std::to_string(i)));
-        ai.push_back(parameters.get_parameter<double>("a_" + std::to_string(i)));
-        bi.push_back(parameters.get_parameter<double>("b_" + std::to_string(i)));
-        di_.push_back(parameters.get_parameter<double>("d_" + std::to_string(i)));
-        ddi_.push_back(parameters.get_parameter<double>("dd_" + std::to_string(i)));
-        dti_.push_back(parameters.get_vec3("dt_" + std::to_string(i)));
-        ddti_.push_back(parameters.get_vec3("ddt_" + std::to_string(i)));
-    }
-}
-
-DEM::Viscoelastic::Viscoelastic(const ParticleType* p, SurfaceType*,
-                                std::chrono::duration<double>, const ParameterMap& parameters) :
-
-        kB_(parameters.get_parameter<double>("kB")),
-        kT_B_(parameters.get_parameter<double>("kT_B_")),
-        kparticle_(parameters.get_parameter<double>("kparticle")),
-        R0_(parameters.get_parameter<double>("R0")),
-        //Rb_(parameters.get_parameter<double>("Rb")),
-        bt_(parameters.get_parameter<double>("bt")),
-        h_(parameters.get_parameter<double>("h")),
-        yield_h_(parameters.get_parameter<double>("yield_h")),
-        hmax_(parameters.get_parameter<double>("hmax")),
-        mu_particle_(parameters.get_parameter<double>("mu_particle")),
-        bonded_(parameters.get_parameter<bool>("activated")),
-        adhesive_(parameters.get_parameter<bool>("adhesive_")),
-        binder_contact_(parameters.get_parameter<bool>("binder_contact")),
-        fractured_(parameters.get_parameter<bool>("fractured")),
-        dt_(parameters.get_parameter<double>("dt")),  // Time increment
-        F_(parameters.get_parameter<double>("F")),
-        dF_(parameters.get_parameter<double>("dF")),
-        F_visc(parameters.get_parameter<double>("F_visc")),
-        F_particle(parameters.get_parameter<double>("F_particle")),
-        dFT_(parameters.get_vec3("dFT")),
-        FT_(parameters.get_vec3("FT")),
-        FT_visc_(parameters.get_vec3("FT_visc")),
-        FT_part_(parameters.get_vec3("FT_part")),
-        uT_(parameters.get_vec3("uT")),
-        rot_(parameters.get_vec3("rot"))
-{
-    material = dynamic_cast<const ElectrodeMaterial *>(p->get_material());
-    M = parameters.get_parameter<std::size_t>("M");
     for (unsigned i=0; i != M; ++i) {
         tau_i.push_back(parameters.get_parameter<double>("tau_" + std::to_string(i)));
         alpha_i.push_back(parameters.get_parameter<double>("alpha_" + std::to_string(i)));
