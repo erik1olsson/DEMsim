@@ -106,7 +106,7 @@ DEM::StoneMaterialContact::StoneMaterialContact(ParticleType* p1, ParticleType* 
     load_var_tangential_(parameters.get_vec3("load_var_tangential")),
     load_var_normal_(parameters.get_parameter("load_var_normal")),
     turning_point_(parameters.get_parameter<int>("turning_point")),
-    FT0({parameters.get_vec3("FTO_1"), parameters.get_vec3("FTO_2")}),
+    FT0({parameters.get_vec3("FT0_1"), parameters.get_vec3("FT0_2")}),
     kp_(parameters.get_parameter("kp")),
     ke_(parameters.get_parameter("ke")),
     kl_(parameters.get_parameter("kl")),
