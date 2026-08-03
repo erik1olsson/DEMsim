@@ -15,8 +15,6 @@ DEM::ElectrodeMaterial::ElectrodeMaterial(const ParameterMap& parameters) :
     nup(parameters.get_parameter<double>("nup")),
     bt(parameters.get_parameter<double>("bt")),
     yield_displacement_coeff(parameters.get_parameter<double>("yield_coeff")),
-    tau_i(),
-    alpha_i(),
     fraction_binder_contacts(parameters.get_parameter<double>("fraction_binder_contacts")),
     binder_radius_fraction(parameters.get_parameter<double>("binder_radius_fraction")),
     kT(parameters.get_parameter<double>("kT")),

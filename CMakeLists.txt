@@ -97,6 +97,7 @@ add_executable(DEMsim
                src/engine/fine_cylinder.h
                src/simulations/kcv/kcv_fines.cpp
                src/simulations/kcv/kcv_particle_resistance.cpp
+        src/materials/stone_material.cpp
 )
 
 target_link_libraries (DEMsim stdc++fs "${OpenMP_CXX_FLAGS}" Eigen3::Eigen)

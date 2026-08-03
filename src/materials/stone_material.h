@@ -11,11 +11,14 @@ namespace DEM {
     class StoneMaterial : public MaterialBase {
     public:
         StoneMaterial(unsigned id_number, double density) : MaterialBase(id_number, density) {}
+        explicit StoneMaterial(const ParameterMap& parameters);
         ~StoneMaterial() override = default;
+        [[nodiscard]] std::string restart_data() const override;
+
         double E { 0. };
         double nu { 0. };
 
-        // For implementing cyclic dissipation according to the results in Celma Cervera et al
+        // For implementing cyclic dissipation according to the results in Celma Cervera et al.
         double unloading_exponent { 1.5 };
         double mu { 0. };
         double mu_wall { 0. };
@@ -32,6 +35,8 @@ namespace DEM {
 
         double plastic_linear_depth = 0.08e-3;
     };
+
+
 }
 
 #endif //DEMSIM_STONE_MATERIAL_H

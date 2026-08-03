@@ -589,6 +589,10 @@ void Engine<ForceModel, ParticleType>::make_material_from_restart_data(const Par
     else if (material_type == "electrode_material") {
         mat = new ElectrodeMaterial(parameters);
     }
+    else if (material_type == "stone_material") {
+        mat = new StoneMaterial(parameters);
+    }
+
     else {
         std::ostringstream error_ss;
         error_ss << "Material " << material_type << " is currently not supported and must be added in the function "
