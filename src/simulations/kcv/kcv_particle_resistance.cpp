@@ -154,8 +154,8 @@ void DEM::kcv_particle_resistance(const std::string& settings_file_name) {
 
         output_compaction->activate();
 
-        EngineType::SurfaceNormalForceGreater surface_normal_force_greater(top_surface, comp_force);
         top_surface = dynamic_cast<decltype(top_surface)>(simulator1.get_surface(top_surface->get_id()));
+        EngineType::SurfaceNormalForceGreater surface_normal_force_greater(top_surface, comp_force);
         top_surface->set_velocity(Vec3(0 ,0, -compaction_velocity));
         simulator1.run(surface_normal_force_greater);
         std::stringstream restart_filename_ss;
