@@ -20,9 +20,9 @@ def pressure_volume_relationship(directory, particle_volume):
     surface_position_file = directory / "surface_positions.dou"
     surface_data = np.genfromtxt(surface_position_file, delimiter=",")
     radius = surface_data[0, 2]
+    print(radius)
     height = surface_data[:, -2]
     cylinder_volume = np.pi*radius**2*height
-    print(cylinder_volume)
     relative_density = particle_volume/cylinder_volume
     surface_force_file = directory / "surface_forces.dou"
     surface_forces = np.genfromtxt(surface_force_file, delimiter=",")
@@ -32,27 +32,30 @@ def pressure_volume_relationship(directory, particle_volume):
 
 
 def main():
-    for mass, lw in zip([0.1, 1.], [2, 3]):
-        for distribution, c in zip(["full", "fines"], ["b", "r"]):
+    for mass, c in zip([0.1, 0.2,  0.5, 1.], ["b", "r", "g", "k"]):
+        for distribution, fig in zip(["full", "fines"], [0, 1]):
             mass_str = f"{str(mass).replace('.', '_')}kg"
             distribution_filename = f"kcv_{distribution}_" + mass_str + ".dat"
             distribution_file = pathlib.Path("~/DEMsim/size_distributions/kcv").expanduser()/distribution_filename
             particle_volume = get_particle_volume(distribution_file)
-            print("Particle volume", particle_volume)
+            print("Particle mass", particle_volume*2650)
 
             results_path = pathlib.Path(f"~/DEMresults/kcv/uniaxial_{mass_str}/{distribution}/compaction").expanduser()
             sim_data = pressure_volume_relationship(results_path, particle_volume)
-            plt.plot(sim_data[:, 0], sim_data[:, 1], c, lw=lw)
+            plt.figure(fig)
+            plt.plot(sim_data[:, 0], sim_data[:, 1], c, lw=2)
 
             # fines_path = pathlib.Path(f"~/DEMsim/results/kcv/uniaxial_{mass_str}/fines_continuum/compaction").expanduser()
             # sim_data = pressure_volume_relationship(fines_path, particle_volume)
             # plt.plot(sim_data[:, 0], sim_data[:, 1], '--b', lw=3)
-
-    plt.xlabel("Density [-]")
-    plt.ylabel("Pressure [MPa]")
-    plt.ylim(0.01, 8)
-    plt.tight_layout()
+    for fig in range(2):
+        plt.figure(fig)
+        plt.xlabel("Density [-]")
+        plt.ylabel("Pressure [MPa]")
+        plt.ylim(0.01, 8)
+        plt.tight_layout()
     plt.show()
+
 
 if __name__ == '__main__':
     main()

@@ -635,6 +635,7 @@ void Engine<ForceModel, ParticleType>::make_particle_from_restart_data(const Par
     MaterialBase* mat = get_material(parameters.get_parameter<std::size_t>("material"));
     auto p = new ParticleType(parameters, mat);
     particles_.push_back(p);
+    simulation_particles_.push_back(p);
 }
 
 template<typename ForceModel, typename ParticleType>
