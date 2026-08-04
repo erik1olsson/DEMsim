@@ -143,6 +143,9 @@ void DEM::kcv_particle_resistance(const std::string& settings_file_name) {
 
     for (const auto& pressure: pressure_levels) {
         // Compacting to the right pressure level
+        double comp_force = pressure*1e6*3.1415*main_cylinder_radius*main_cylinder_radius;
+        std::cout << "Compacting to pressure level p=" << pressure << " MPa, corresponding to a force of "
+                  << comp_force << " N" << std::endl;
         auto simulator1 = EngineType(output_directory + "/" + restart_filename);
         auto output_compaction = simulator1.create_output(output_directory + "/compaction/", 0.001s);
         output_compaction->print_kinetic_energy = true;
@@ -150,7 +153,7 @@ void DEM::kcv_particle_resistance(const std::string& settings_file_name) {
         output_compaction->print_surface_positions = true;
 
         output_compaction->activate();
-        double comp_force = pressure*1e6*3.1415*main_cylinder_radius*main_cylinder_radius;
+
         EngineType::SurfaceNormalForceGreater surface_normal_force_greater(top_surface, comp_force);
         top_surface = dynamic_cast<decltype(top_surface)>(simulator1.get_surface(top_surface->get_id()));
         top_surface->set_velocity(Vec3(0 ,0, -compaction_velocity));
@@ -175,7 +178,6 @@ void DEM::kcv_particle_resistance(const std::string& settings_file_name) {
         EngineType::RunForTime run_for_time(simulator1, std::chrono::duration<double>(loading_time));
         simulator1.run(run_for_time);
         test_particle = simulator1.get_particle(test_particle->get_id());
-        test_particle->set_velocity(Vec3(0,0, particle_velocity));
         test_particle->set_velocity(Vec3(0,0, particle_velocity));
         run_for_time.reset(std::chrono::duration<double>(loading_time));
         simulator1.run(run_for_time);
