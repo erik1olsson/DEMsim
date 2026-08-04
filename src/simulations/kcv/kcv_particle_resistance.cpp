@@ -140,18 +140,16 @@ void DEM::kcv_particle_resistance(const std::string& settings_file_name) {
     top_surface->move(Vec3(0, 0, zmax - filling_height), Vec3(0, 0, 0));
     std::string restart_filename = "after_filling.res";
     simulator.write_restart_file(output_directory + "/" + restart_filename);
-
+    auto simulator1 = EngineType(output_directory + "/" + restart_filename);
+    auto output_compaction = simulator1.create_output(output_directory + "/compaction/", 0.001s);
+    output_compaction->print_kinetic_energy = true;
+    output_compaction->print_surface_forces = true;
+    output_compaction->print_surface_positions = true;
     for (const auto& pressure: pressure_levels) {
         // Compacting to the right pressure level
         double comp_force = pressure*1e6*3.1415*main_cylinder_radius*main_cylinder_radius;
         std::cout << "Compacting to pressure level p=" << pressure << " MPa, corresponding to a force of "
                   << comp_force << " N" << std::endl;
-        auto simulator1 = EngineType(output_directory + "/" + restart_filename);
-        auto output_compaction = simulator1.create_output(output_directory + "/compaction/", 0.001s);
-        output_compaction->print_kinetic_energy = true;
-        output_compaction->print_surface_forces = true;
-        output_compaction->print_surface_positions = true;
-
         output_compaction->activate();
 
         top_surface = dynamic_cast<decltype(top_surface)>(simulator1.get_surface(top_surface->get_id()));
