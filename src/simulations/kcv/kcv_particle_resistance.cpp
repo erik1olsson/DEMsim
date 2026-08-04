@@ -174,10 +174,10 @@ void DEM::kcv_particle_resistance(const std::string& settings_file_name) {
         output_particle->print_surface_positions = true;
         output_particle->add_particle_to_follow(test_particle->get_id());
 
+        test_particle = simulator1.get_particle(test_particle->get_id());
         simulator1.exclude_particle_from_simulation(test_particle, Vec3(0, 0, -particle_velocity));
         EngineType::RunForTime run_for_time(simulator1, std::chrono::duration<double>(loading_time));
         simulator1.run(run_for_time);
-        test_particle = simulator1.get_particle(test_particle->get_id());
         test_particle->set_velocity(Vec3(0,0, particle_velocity));
         run_for_time.reset(std::chrono::duration<double>(loading_time));
         simulator1.run(run_for_time);
