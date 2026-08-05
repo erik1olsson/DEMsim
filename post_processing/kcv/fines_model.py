@@ -27,6 +27,7 @@ class IncrementalModel:
         self.n = 4.20438353e+00
 
         self.a = 0.658433977547588
+        # self.a = 0.8
         self.b = 0.9
 
         self.D = initial_density
@@ -155,7 +156,7 @@ def main():
 
     inc_model = IncrementalModel(0.45)
     D1 = 0.45
-    D2 = 0.51
+    D2 = 0.505
     d_levels = np.linspace(D1, D2, 6)
     current_d = D1
     unloading_d = 0.01
@@ -189,7 +190,7 @@ def main():
     plt.xlim(0.45, 0.51)
     plt.ylim(0.01, 8)
     plt.tight_layout()
-    plt.figure(2)
+    plt.figure(1)
 
     model_d = np.array(model_d)
     pressure = np.array(pressure)
@@ -199,12 +200,6 @@ def main():
     plt.plot(model_d[legend == 1], pressure[legend == 1], 'g*')
     plt.plot(model_d[legend == 2], pressure[legend == 2], 'r*')
 
-    plt.figure(3)
-
-    data = np.genfromtxt("pd.csv", delimiter=",")
-    plt.plot(data[:, 1], data[:, 1], 'b')
-    plt.plot(data[:, 1], data[:, 1], 'r')
-    plt.plot(data[:, 1], data[:, 1], 'g')
     plt.show()
 
 
