@@ -1,0 +1,12 @@
+gas_density=0.2
+filling_density=0.5
+aspect_ratio_after_filling=1.
+output_dir=../../DEMresults/kcv/uniaxial_0_1kg/full_continuum/
+stone_radius_file=../size_distributions/kcv/fuller/kcv_large_0_1kg.dat
+fines_radius_file=../size_distributions/kcv/fuller/kcv_fines_0_1kg.dat
+E=45E9
+nu=0.15
+mu=0.7
+mu_wall=0.0
+unloading_exponent=1.7
+compaction_velocity=0.001

@@ -71,7 +71,7 @@ def main():
     scene = fig.scene
     scene.camera.position = [-0, 0.5, 0.5]
     scene.camera.focal_point = [0., 0, 0]
-    snapshot = Snapshot(os.path.expanduser('~/DEMsim/results/kcv/uniaxial_0_1kg/particle_resistance_8_24/animation'))
+    snapshot = Snapshot(os.path.expanduser('~/DEMresults/kcv/uniaxial_0_1kg/full/animation'))
     snapshot.plot_periodic_bc = False
     bbox = BoundingBox()
     # bbox.z_max = lambda t: 0.025
@@ -82,7 +82,7 @@ def main():
     # snapshot.visible_functions[3] = lambda t: False
     snapshot.surfaces_colors[0] = colors.red
     snapshot.surfaces_colors[3] = colors.red
-    snapshot.plot(0.)
+    snapshot.plot(1.35)
     # mlab.view(0, 0, distance=0.25)
     scene.camera.view_up = [0, 0, 1]
     scene.camera.focal_point = [0., 0, 0]

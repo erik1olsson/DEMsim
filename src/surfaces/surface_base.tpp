@@ -86,7 +86,7 @@ double DEM::Surface<ForceModel, ParticleType>::get_normal_force() const
         }
     }
     if (fines_integration_point_) {
-        const auto fines_force = Vec3(0, 0, fines_integration_point_->force);
+        const auto fines_force = -Vec3(0, 0, fines_integration_point_->force);
         const auto fines_point = Vec3(0, 0, fines_integration_point_->position);
         normal_force += dot_product(fines_force, get_normal(fines_point));
     }

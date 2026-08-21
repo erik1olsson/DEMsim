@@ -296,10 +296,10 @@ Engine<ForceModel, ParticleType>::create_cylinder(double radius, const Vec3& axi
 
 template<typename ForceModel, typename ParticleType>
 FineCylinder<ForceModel, ParticleType>* Engine<ForceModel, ParticleType>::create_fine_cylinder(const double radius, const double height,
-    const double fine_mass, const double stone_density, const std::size_t numpoints)
+    const double fine_mass, const double stone_density, const std::size_t numpoints, FineMaterial* material)
 {
     fine_cylinder_ = new FineCylinder<ForceModel, ParticleType>(radius, height, fine_mass, stone_density, numpoints,
-        particles_);
+        particles_, material);
     return fine_cylinder_;
 }
 
@@ -755,6 +755,10 @@ void Engine<ForceModel, ParticleType>::move_particles()
             for (const auto&[fst, snd]: viscocity_parameters_) {
                 F -= pow(v.length(), snd)*v.normal()*fst*p->get_radius()*p->get_radius();
             }
+        }
+
+        if (fine_cylinder_) {
+            F -= fine_cylinder_->get_particle_force(p->get_id());
         }
 
         double m = p->get_mass()*mass_scale_factor_;

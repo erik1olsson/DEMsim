@@ -22,29 +22,29 @@ namespace DEM {
         ParticleBase(double, const Vec3&, const Vec3&, const MaterialBase*, unsigned );
         ParticleBase(const ParameterMap& parameters, MaterialBase* material);
         virtual ~ParticleBase() = default;
-        unsigned get_id() const { return id_; }
-        const MaterialBase* get_material() const { return material_; }
+        [[nodiscard]] unsigned get_id() const { return id_; }
+        [[nodiscard]] const MaterialBase* get_material() const { return material_; }
 
-        const Vec3& get_force() const { return f_; }
-        const Vec3& get_torque() const { return torque_; }
+        [[nodiscard]] const Vec3& get_force() const { return f_; }
+        [[nodiscard]] const Vec3& get_torque() const { return torque_; }
 
-        double get_mass() const { return mass_; }
+        [[nodiscard]] double get_mass() const { return mass_; }
         void set_mass(double new_mass) {mass_ = new_mass; }
 
-        const Vec3& get_position() const { return position_; }
-        const Vec3& get_velocity() const { return velocity_; }
-        const Vec3& get_acceleration() const { return acceleration_; }
+        [[nodiscard]] const Vec3& get_position() const { return position_; }
+        [[nodiscard]] const Vec3& get_velocity() const { return velocity_; }
+        [[nodiscard]] const Vec3& get_acceleration() const { return acceleration_; }
         void set_velocity(const Vec3& new_velocity) { velocity_ = new_velocity; }
         void set_acceleration(const Vec3& new_acceleration) { acceleration_ = new_acceleration; }
 
-        const Vec3& get_rotation() const { return rot_; }
-        const Vec3& get_angular_velocity() const { return ang_vel_; }
-        const Vec3& get_angular_acceleration() const {return angular_acceleration_; }
+        [[nodiscard]] const Vec3& get_rotation() const { return rot_; }
+        [[nodiscard]] const Vec3& get_angular_velocity() const { return ang_vel_; }
+        [[nodiscard]] const Vec3& get_angular_acceleration() const {return angular_acceleration_; }
         void set_angular_velocity(Vec3 new_ang_vel) { ang_vel_ = new_ang_vel; }
         void set_angular_acceleration(Vec3 new_ang_acc) { angular_acceleration_ = new_ang_acc; }
 
-        const Vec3& get_displacement_this_increment() const { return displacement_this_inc_; }
-        const Vec3& get_rotation_this_increment() const { return rot_this_inc_; }
+        [[nodiscard]] const Vec3& get_displacement_this_increment() const { return displacement_this_inc_; }
+        [[nodiscard]] const Vec3& get_rotation_this_increment() const { return rot_this_inc_; }
 
         [[nodiscard]] virtual std::string restart_data() const;
         void reset_contact_forces() {f_.set_zero(); torque_.set_zero(); }

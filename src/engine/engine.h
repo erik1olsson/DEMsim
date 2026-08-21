@@ -79,7 +79,7 @@ namespace DEM {
                                         bool closed_ends=false);
 
         FineCylinder<ForceModel, ParticleType>* create_fine_cylinder(double radius, double height, double fine_mass, double stone_density,
-            std::size_t numpoints);
+            std::size_t numpoints, FineMaterial* material);
 
         OutputPointerType create_output(const std::string &directory, std::chrono::duration<double> interval);
         OutputPointerType create_output(std::string directory, std::chrono::duration<double> interval,

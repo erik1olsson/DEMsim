@@ -36,7 +36,7 @@ def main():
         for distribution, fig in zip(["full", "fines"], [0, 1]):
             mass_str = f"{str(mass).replace('.', '_')}kg"
             distribution_filename = f"kcv_{distribution}_" + mass_str + ".dat"
-            distribution_file = pathlib.Path("~/DEMsim/size_distributions/kcv").expanduser()/distribution_filename
+            distribution_file = pathlib.Path("~/DEMsim/size_distributions/kcv/fuller").expanduser()/distribution_filename
             particle_volume = get_particle_volume(distribution_file)
             print("Particle mass", particle_volume*2650)
 
