@@ -72,7 +72,7 @@ void DEM::kcv_fines(const std::string& settings_file_name) {
     simulator.create_cylinder(main_cylinder_radius, Vec3(0, 0, 1), Vec3(0, 0,0),
                               filling_height, true, true, false);
 
-        simulator.set_gravity(Vec3(0, 0, -9.820));
+    simulator.set_gravity(Vec3(0, 0, -9.820));
     std::vector<ParticleType*> particles;
     simulator.set_rotation(false);
 
@@ -85,8 +85,9 @@ void DEM::kcv_fines(const std::string& settings_file_name) {
 
     auto particle_positions = random_fill_cylinder(0, filling_height,
                                                    main_cylinder_radius, simulation_particle_radii);
-    //for (std::size_t i = 0; i != 1; ++i) {
+
     for (std::size_t i = 0; i != particle_positions.size(); ++i) {
+    // for (std::size_t i = 0; i != 2; ++i) {
         ParticleType *p = simulator.create_particle(simulation_particle_radii[i], particle_positions[i],
                                                     Vec3(0, 0, 0), mat);
         particles.push_back(p);
@@ -127,6 +128,7 @@ void DEM::kcv_fines(const std::string& settings_file_name) {
     output_filling->print_surface_positions = true;
     output_filling->print_surface_forces = true;
     output_filling->print_fine_cylinder = true;
+    output_filling->print_fines_particle_forces = true;
 
     auto particle_output = simulator.create_output(output_directory + "/animation", 0.01s);
     particle_output->print_particles = true;
@@ -134,14 +136,19 @@ void DEM::kcv_fines(const std::string& settings_file_name) {
     particle_output->print_contacts = true;
 
     simulator.setup();
-    EngineType::RunForTime run_for_time01(simulator, 1s);
+    EngineType::RunForTime run_for_time01(simulator, 0.5s);
     simulator.run(run_for_time01);
     EngineType::ParticleVelocityLess max_velocity(simulator, 0.1, 0.01s);
     simulator.run(max_velocity);
     simulator.remove_output(output_filling);
 
-
-    double z_max = 0.055;
+    double z_max1 = simulator.get_bounding_box()[5];
+    double top_slice_height = fine_cylinder->get_position_of_point(24) - fine_cylinder->get_position_of_point(23);
+    double top_slice_density = fine_cylinder->get_density_of_slice(23);
+    std::cout << "top slice height is " << top_slice_height << " and density " << top_slice_density << std::endl;
+    double z_max2 = top_slice_density/0.23*top_slice_height + fine_cylinder->get_position_of_point(23);
+    double z_max = std::max(z_max1, z_max2);
+    std::cout << "Moving lid to " << z_max << std::endl;
     top_surface->move(Vec3(0, 0, z_max - filling_height), Vec3(0, 0, 0));
 
     top_surface->set_velocity(Vec3(0 ,0, -compaction_velocity));
@@ -151,6 +158,7 @@ void DEM::kcv_fines(const std::string& settings_file_name) {
     output_compaction->print_surface_forces = true;
     output_compaction->print_surface_positions = true;
     output_compaction->print_fine_cylinder = true;
+    output_compaction->print_fines_particle_forces = true;
 
 
     double comp_force = 7.5e6*3.1415*main_cylinder_radius*main_cylinder_radius;

@@ -51,6 +51,7 @@ DEM::Output<ForceModel, ParticleType>::Output(const std::string& directory, std:
         fs::remove_all(directory_ / fs::path("particles"));
         fs::remove_all(directory_ / fs::path("contacts/"));
         fs::remove_all(directory_ / fs::path("mirror_particles/"));
+        fs::remove_all(directory_ / fs::path("fines/"));
     }
 }
 
@@ -167,16 +168,21 @@ void DEM::Output<ForceModel, ParticleType>::write_kinetic_energy() const
 {
     // Sum energies of all particles
     auto transl_e = 0.;
+
     auto rot_e = 0.;
     for (const auto& p : particles_){
         transl_e += p->translational_energy();
         rot_e += p->rotational_energy();
     }
-
+    std::stringstream ss;
+    ss <<  transl_e << ", " << rot_e << ", " << transl_e + rot_e;
+    if (fine_cylinder_) {
+        ss << ", " << fine_cylinder_->get_kinetic_energy();
+    }
     fs::path filename = directory_ / fs::path("kinetic_energy.dou");
     std::ofstream output_file;
     output_file.open(filename, std::fstream::app);
-    output_file << transl_e << ", " << rot_e << ", " << transl_e + rot_e << ", " << current_time_.count() << "\n";
+    output_file << ss.str() << ", " << current_time_.count() << "\n";
     output_file.close();
 }
 
@@ -329,10 +335,33 @@ void DEM::Output<ForceModel, ParticleType>::write_particles_to_follow() const {
 template<typename ForceModel, typename ParticleType>
 void DEM::Output<ForceModel, ParticleType>::write_fine_cylinder() const {
     if (fine_cylinder_) {
-        fs::path filename = directory_ / "fines.dou";
+        std::ostringstream filename_stream;
+        fs::path fines_directory = directory_ / fs::path("fines");
+        if (!fs::exists(fines_directory)) {
+            fs::create_directories(fines_directory);
+        }
+        fs::path filename = fines_directory/ "fines.dou";
         std::ofstream output_file;
         output_file.open(filename, std::fstream::app);
         output_file << current_time_.count() << ", " << fine_cylinder_->get_output_string() << "\n";
+        output_file.close();
+    }
+}
+
+template<typename ForceModel, typename ParticleType>
+void DEM::Output<ForceModel, ParticleType>::write_fines_particle_forces() const {
+    if (fine_cylinder_) {
+        std::ostringstream filename_stream;
+        fs::path fines_directory = directory_ / fs::path("fines");
+        if (!fs::exists(fines_directory)) {
+            fs::create_directories(fines_directory);
+        }
+        filename_stream << "forces_" << current_time_.count() << ".dou";
+        std::ofstream output_file;
+        output_file.open(fines_directory / fs::path(filename_stream.str()));
+        for (const auto& force_str: fine_cylinder_->particle_force_strings()) {
+            output_file << force_str << "\n";
+        }
         output_file.close();
     }
 }

@@ -222,6 +222,9 @@ Engine<ForceModel, ParticleType>::create_particle(double radius, const Vec3& pos
     simulation_particles_.push_back(p);
     ++object_id_counter_;
     ++collision_id_counter_;
+    if (fine_cylinder_) {
+        fine_cylinder_->add_particle(p);
+    }
     return p;
 }
 
@@ -421,6 +424,9 @@ double Engine<ForceModel, ParticleType>::get_kinetic_energy() const
     for(const auto& p: particles_){
         energy += p->kinetic_energy();
     }
+    if (fine_cylinder_) {
+        energy += fine_cylinder_->get_kinetic_energy();
+    }
     return energy;
 }
 
@@ -566,6 +572,9 @@ template<typename ForceModel, typename ParticleType>
 void Engine<ForceModel, ParticleType>::do_step()
 {
     // std::cout << "new step at time " << get_time().count() << "\n";
+    if (fine_cylinder_) {
+        fine_cylinder_->update(increment_, gravity_);
+    }
     move_particles();
     move_surfaces();
     collision_detector_.do_check();
@@ -574,9 +583,6 @@ void Engine<ForceModel, ParticleType>::do_step()
     update_contacts();
     sum_contact_forces();
     run_output();
-    if (fine_cylinder_) {
-        fine_cylinder_->update(increment_, gravity_);
-    }
 }
 
 template<typename ForceModel, typename ParticleType>
@@ -747,20 +753,15 @@ void Engine<ForceModel, ParticleType>::move_particles()
     double dt = increment_.count();
     #pragma omp parallel for private(F, M, new_a, new_v, new_ang_a,  new_ang_v, new_disp, new_rot, v)
     for (unsigned i = 0; i < simulation_particles_.size(); ++i) {
+
         ParticleType* p = simulation_particles_[i];
         F = p->get_force();
         v = p->get_velocity();
 
-        if (!viscocity_parameters_.empty() && !v.is_zero()) {
-            for (const auto&[fst, snd]: viscocity_parameters_) {
-                F -= pow(v.length(), snd)*v.normal()*fst*p->get_radius()*p->get_radius();
-            }
-        }
-
         if (fine_cylinder_) {
             F -= fine_cylinder_->get_particle_force(p->get_id());
-        }
 
+        }
         double m = p->get_mass()*mass_scale_factor_;
 
         new_a = F/m + gravity_;
@@ -769,6 +770,11 @@ void Engine<ForceModel, ParticleType>::move_particles()
         p->set_velocity(new_v);
         p->set_acceleration(new_a);
         p->move(new_disp);
+        if (new_v.length() > 5) {
+            std::cout << "particle " << p->get_id() << " too fast" << std::endl;
+            std::cout << "Force is " << F << std::endl;
+            std::abort();
+        }
 
         if (rotation_) {
             M = p->get_torque();

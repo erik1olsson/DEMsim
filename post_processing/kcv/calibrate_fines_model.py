@@ -12,7 +12,7 @@ from fines_model import get_particle_volume, residual_loading, model
 matplotlib.style.use('classic')
 plt.rc('text', usetex=True)
 plt.rc('font', serif='Computer Modern Roman')
-plt.rcParams.update({'font.size': 20})
+plt.rcParams.update({'font.size': 24})
 plt.rcParams['text.latex.preamble'] = r"\usepackage{amsmath}"
 plt.rc('font', **{'family': 'serif', 'serif': ['Computer Modern Roman'],
                   'monospace': ['Computer Modern Typewriter']})
@@ -22,7 +22,7 @@ Simulation = namedtuple("Simulation", ["gradation", "results_directory", "color"
 
 def fines_model(D, radius, height, D_th, d_boundary, K, nl):
     D0 = (1-2*(height + radius)/radius/height*d_boundary)*D_th
-    D0[D0 < 0] =0
+    D0[D0 < 0] = 0
     p = K*(D - D0)**nl
     p[D - D0 < 0] = 0
     return p
@@ -43,10 +43,14 @@ def main():
     simulations = [
         # Simulation(gradation=gradation_dir / "mono/kcv_1mm_6000.dat",
         #            results_directory=results_dir / "mono_6000/fines/compaction", color="b"),
-        Simulation(gradation=gradation_dir/"fuller/kcv_fines_0_1kg.dat",
-                   results_directory=results_dir/"uniaxial_0_1kg/fines/compaction", color="r"),
+        # Simulation(gradation=gradation_dir/"fuller/kcv_fines_0_1kg.dat",
+        #            results_directory=results_dir/"uniaxial_0_1kg/fines/4/compaction", color="r"),
         Simulation(gradation=gradation_dir/"fuller/kcv_fines_0_2kg.dat",
-                   results_directory=results_dir/"uniaxial_0_2kg/fines/compaction", color="b"),
+                   results_directory=results_dir/"uniaxial_0_2kg/fines/1/compaction", color="b"),
+        Simulation(gradation=gradation_dir/"fuller/kcv_fines_0_2kg.dat",
+                   results_directory=results_dir/"uniaxial_0_2kg/fines/2/compaction", color="b"),
+        Simulation(gradation=gradation_dir/"fuller/kcv_fines_0_2kg.dat",
+                   results_directory=results_dir/"uniaxial_0_2kg/fines/5/compaction", color="b"),
         Simulation(gradation=gradation_dir/"fuller/kcv_fines_0_5kg.dat",
                    results_directory=results_dir/"uniaxial_0_5kg/fines/compaction", color="g"),
         Simulation(gradation=gradation_dir/"fuller/kcv_fines_1_0kg.dat",
@@ -71,7 +75,7 @@ def main():
         print(radius, height[0])
         data_sets.append((density[:idx], compaction_pressure[:idx], radius, height[:idx], sim.color))
 
-    parameters_old = np.array([[0.5, 1e-3, 3166059, 4.2]])
+    parameters_old = np.array([[0.5, 1e-3, 3166059e6, 4.2]])
     parameters_new = 0*parameters_old
     res = 10
     while res > 0:
@@ -84,7 +88,12 @@ def main():
 
     for (D_sim, _, r, h, c) in data_sets:
         p_model = fines_model(D_sim, r, h, *parameters_new)
-        plt.plot(D_sim, p_model, '--' + c)
+        plt.plot(D_sim, p_model, '--' + c, lw=2)
+
+    plt.xlabel("Relative density [-]")
+    plt.ylabel("Pressure [MPa]")
+    plt.tight_layout()
+    plt.savefig("fines_all.png")
     plt.show()
 
 if __name__ == '__main__':

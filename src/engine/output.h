@@ -47,6 +47,7 @@ namespace DEM {
         bool print_mirror_particles = false;
         bool print_fabric_force_tensor = false;
         bool print_fine_cylinder = false;
+        bool print_fines_particle_forces = false;
 
         [[nodiscard]] std::string restart_data() const;
         void set_new_directory(const std::string& directory);
@@ -69,17 +70,18 @@ namespace DEM {
         std::filesystem::path directory_;
         std::vector<const ParticleType*> particles_to_print_;
 
-        FuncVec output_functions_ {{Output::print_particles,           &Output::write_particles},
-                                   {Output::print_kinetic_energy,      &Output::write_kinetic_energy},
-                                   {Output::print_surface_positions,   &Output::write_surface_positions},
-                                   {Output::print_surface_forces,      &Output::write_surface_forces},
-                                   {Output::print_particle_cracks,     &Output::write_particle_cracks},
-                                   {Output::print_contacts,            &Output::write_contacts},
-                                   {Output::print_bounding_box,        &Output::write_bounding_box},
-                                   {Output::print_periodic_bc,         &Output::write_periodic_bc},
-                                   {Output::print_mirror_particles,    &Output::write_mirror_particles},
-                                   {Output::print_fabric_force_tensor, &Output::write_fabric_force_tensor},
-                                   {Output::print_fine_cylinder,       &Output::write_fine_cylinder}
+        FuncVec output_functions_ {{print_particles,              &Output::write_particles},
+                                   {print_kinetic_energy,         &Output::write_kinetic_energy},
+                                   {print_surface_positions,      &Output::write_surface_positions},
+                                   {print_surface_forces,         &Output::write_surface_forces},
+                                   {print_particle_cracks,        &Output::write_particle_cracks},
+                                   {print_contacts,               &Output::write_contacts},
+                                   {print_bounding_box,           &Output::write_bounding_box},
+                                   {print_periodic_bc,            &Output::write_periodic_bc},
+                                   {print_mirror_particles,       &Output::write_mirror_particles},
+                                   {print_fabric_force_tensor,    &Output::write_fabric_force_tensor},
+                                   {print_fine_cylinder,          &Output::write_fine_cylinder},
+                                   {print_fines_particle_forces,  &Output::write_fines_particle_forces}
         };
 
         std::chrono::duration<double> current_time_;
@@ -98,6 +100,7 @@ namespace DEM {
         void write_fabric_force_tensor() const;
         void write_particles_to_follow() const;
         void write_fine_cylinder() const;
+        void write_fines_particle_forces() const;
     };
 }
 

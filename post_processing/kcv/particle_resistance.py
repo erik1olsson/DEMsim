@@ -26,7 +26,7 @@ def main():
         Simulation(radius=8, distance=24, levels=[0.1, 0.5, 1, 2.5, 5.7], material="uniaxial_0_1kg"),
         Simulation(radius=8, distance=24, levels=[0.1, 0.5, 1, 2.5, 5, 7.5], material="mono_6000"),
         Simulation(radius=4, distance=24, levels=[0.1, 0.5, 1, 2.5, 5.7], material="uniaxial_0_1kg"),
-        # Simulation(radius=8, distance=10, levels=[0.1, 0.5, 1, 2.5, 5.7], material="uniaxial_0_1kg"),
+        Simulation(radius=8, distance=10, levels=[0.1, 0.5, 1, 2.5, 5.7], material="uniaxial_0_1kg"),
         # Simulation(radius=8, distance=16, levels=[0.1, 0.5, 1, 2.5, 5.7], material="uniaxial_0_1kg")
     ]
     colors = ["b", "r", "g", "k", "y", "m"]
@@ -56,7 +56,7 @@ def main():
 
             z_unloading = z[idx:]
             fz_unloading = fz[idx:]
-            pz_unloading = fz_unloading/case.radius**2
+            pz_unloading = fz_unloading/case.radius**2/3.1415
             plt.figure(10+fig)
             plt.plot(z_loading, fz_loading, c, lw=2)
 
@@ -69,20 +69,18 @@ def main():
             # D_true = particle_volume/cyL_vol
             # D_fines = (particle_volume - 4*3.1415*(case.radius/1000)**3/3)/(cyL_vol - 4*3.1415*(case.radius/1000)**3/3)
             D1 = (p/K)**(1/n) + D0
-            D_reploading = ((pz_loading - p)/K)**(1/n) + D0
+            D_reploading = ((pz_loading)/K)**(1/n)
 
             # D_model = 0.06*(1 - np.exp(-1500*z_loading)) + D1
-            D_model = 30*z_loading+ D1
+            D_model = 0.03*(1-np.exp(-1500*z_loading)) + D1
             # D_model = 10*z_loading
             p_model = K*(D_model - D0)**n
+            print(D_model)
             fz_model = (p_model - p)*case.radius**2*3.1415
             plt.plot(z_loading, fz_model, '--' + c, lw=2)
 
             plt.figure(1)
-            plt.plot(z_loading, D_reploading - D1, c, lw=2)
-
-            plt.figure(2)
-            plt.plot(z_unloading, fz_unloading/case.radius**2, c, lw=2)
+            plt.plot(z_loading, D_reploading + D0 - D1, c, lw=2)
 
             D0u = D0 + 0.8*(D_reploading[-1] - D0)
             Ku = pz_loading[-1]/(D_reploading[-1] - D0u)**n
@@ -92,8 +90,8 @@ def main():
             # plt.plot(z_unloading, Drep_unloading - D1, c, lw=2)
 
     x = np.linspace(0, 0.008, 1000)
-    # y = 0.06*(1-np.exp(-1500*x))
-    y = 30*x
+    y = 0.03*(1-np.exp(-1500*x))
+    # y = 30*x
     plt.figure(1)
     plt.plot(x, y, '--k', lw=3)
     plt.show()

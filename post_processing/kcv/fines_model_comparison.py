@@ -16,7 +16,8 @@ plt.rcParams['text.latex.preamble'] = r"\usepackage{amsmath}"
 plt.rc('font', **{'family': 'serif', 'serif': ['Computer Modern Roman'],
                   'monospace': ['Computer Modern Typewriter']})
 
-Case = namedtuple("Case", ["full_path", "continuum_path", "gradation", "color"])
+Case = namedtuple("Case", ["full_path", "continuum_path", "gradation", "color", "full_simulations",
+                           "continuum_simulations"])
 
 
 def get_pressure_density_relationship(results_path, particle_volume):
@@ -25,39 +26,49 @@ def get_pressure_density_relationship(results_path, particle_volume):
     radius = surface_data[0, 2]
     height = surface_data[:, -2]
     cylinder_volume = np.pi*radius**2*height
-    print(radius, height[0])
     density = particle_volume/cylinder_volume
     surface_force_file = results_path / "surface_forces.dou"
     surface_forces = np.genfromtxt(surface_force_file, delimiter=",")
     compaction_pressure = surface_forces[:, -2]/np.pi/radius**2/1e6
-    print(results_path, density[0])
-    return np.column_stack((density, compaction_pressure))
+    length = np.min((len(density), len(compaction_pressure)))
+    print(length)
+    return np.column_stack((density[:length], compaction_pressure[:length]))
 
 
 def main():
     gradation_path = pathlib.Path("~/DEMsim/size_distributions/kcv").expanduser()
     results_path = pathlib.Path("~/DEMresults/kcv").expanduser()
     cases = [
-        Case(full_path=results_path / "uniaxial_0_1kg/fines/compaction",
-             continuum_path=results_path / "uniaxial_0_1kg/fines_continuum/compaction",
-             gradation=gradation_path / "fuller/kcv_fines_0_1kg.dat",
-             color="b"),
+        # Case(full_path=results_path / "uniaxial_0_1kg/fines/compaction",
+        #      continuum_path=results_path / "uniaxial_0_1kg/fines_continuum/compaction",
+        #      gradation=gradation_path / "fuller/kcv_fines_0_1kg.dat",
+        #      color="b"),
 
-        Case(full_path=results_path/"uniaxial_0_1kg/full/compaction",
-             continuum_path=results_path/"uniaxial_0_1kg/full_continuum/compaction",
-             gradation=gradation_path/"fuller/kcv_full_0_1kg.dat",
-             color="r")
+        Case(full_path=results_path/"uniaxial_0_2kg/full/",
+             continuum_path=results_path/"uniaxial_0_2kg/full_continuum/",
+             gradation=gradation_path/"fuller/kcv_full_0_2kg.dat",
+             color="b", full_simulations=[1,2,3,4,5], continuum_simulations=[1])
     ]
 
     for case in cases:
         particle_volume = get_particle_volume(case.gradation)
         print(particle_volume)
-        full_results = get_pressure_density_relationship(case.full_path, particle_volume)
-        plt.plot(full_results[:, 0], full_results[:, 1], case.color, lw=2)
+        for full_sim in case.full_simulations:
+            directory = case.full_path / str(full_sim) / "compaction"
+            full_results = get_pressure_density_relationship(directory, particle_volume)
+            plt.plot(full_results[:, 0], full_results[:, 1], case.color, lw=2)
 
-        continuum_results = get_pressure_density_relationship(case.continuum_path, particle_volume)
-        plt.plot(continuum_results[:, 0], continuum_results[:, 1], "--" + case.color, lw=2)
+        for continuum_sim in case.continuum_simulations:
+            directory = case.continuum_path / str(continuum_sim) / "compaction"
+            continuum_results = get_pressure_density_relationship(directory, particle_volume)
+            plt.plot(continuum_results[:-60, 0], continuum_results[:-60, 1], "--" + "k", lw=2)
 
+    # plt.xlim(0.44, 0.48)
+    # plt.ylim(0, 1)
+    plt.xlabel("Relative density [-]")
+    plt.ylabel("Pressure [MPa]")
+    plt.tight_layout()
+    plt.savefig("fines_continuum_zoom.png")
     plt.show()
 
 

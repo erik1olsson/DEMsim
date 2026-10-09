@@ -113,16 +113,43 @@ void DEM::kcv_uniaxial(const std::string& settings_file_name) {
     output_filling->print_surface_forces = true;
 
     simulator.setup();
+
     EngineType::RunForTime run_for_time01(simulator, 0.1s);
     simulator.run(run_for_time01);
-
     EngineType::ParticleVelocityLess max_velocity(simulator, 0.1, 0.01s);
     simulator.run(max_velocity);
     simulator.remove_output(output_filling);
-    // Moving the lid to the top particle
 
+    auto output_shake = simulator.create_output(output_directory + "/shake/", 0.001s);
+    output_shake->print_kinetic_energy = true;
+    output_shake->print_surface_forces = true;
+    output_shake->print_surface_positions = true;
+
+    // Moving the lid to the top particle
     auto bbox = simulator.get_bounding_box();
     auto zmax = bbox[5];
+    top_surface->move(Vec3(0, 0, zmax - filling_height), Vec3(0, 0, 0));
+    simulator.set_gravity({0, 0, 9.82});
+    simulator.run(run_for_time01);
+    run_for_time01.reset(0.1s);
+    max_velocity.set_new_value(0.1);
+    simulator.run(max_velocity);
+
+    // Moving the lid to the top particle
+    bbox = simulator.get_bounding_box();
+    auto zmin = bbox[4];
+    bottom_surface->move(Vec3(0, 0, zmin), Vec3(0, 0, 0));
+    simulator.set_gravity({0, 0, -9.82});
+    simulator.run(run_for_time01);
+    run_for_time01.reset(0.1s);
+    max_velocity.set_new_value(0.1);
+    simulator.run(max_velocity);
+
+    simulator.set_gravity({0, 0, -9.82});
+
+    // Moving the lid to the top particle
+    bbox = simulator.get_bounding_box();
+    zmax = bbox[5];
 
     top_surface->move(Vec3(0, 0, zmax - filling_height), Vec3(0, 0, 0));
     top_surface->set_velocity(Vec3(0 ,0, -compaction_velocity));

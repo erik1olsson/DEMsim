@@ -16,13 +16,16 @@ plt.rc('font', **{'family': 'serif', 'serif': ['Computer Modern Roman'],
 
 
 def main():
-    N = 6000
-    r = 1
+    r = 2e-3
+    mass = 0.5
+    N = int(mass/2630*3/4/3.1415/r**3)
+    print(N)
+
     radii = np.zeros(N) + r
-    size_distribution_directory = pathlib.Path("../../size_distributions/kcv")
-    filename = "kcv_{r}mm_{N}".format(r=r, N=N).replace(".", "_")
+    size_distribution_directory = pathlib.Path("../../size_distributions/kcv/mono")
+    filename = "kcv_{r}mm_{mass}_kg".format(r=int(r*1000), mass=mass).replace(".", "_")
     filename += ".dat"
-    np.savetxt(size_distribution_directory / filename, radii/1e3)
+    np.savetxt(size_distribution_directory / filename, radii)
 
 
 if __name__ == '__main__':
