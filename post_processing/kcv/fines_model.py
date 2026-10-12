@@ -1,4 +1,5 @@
 import pathlib
+from zlib import DEF_MEM_LEVEL
 
 import numpy as np
 
@@ -6,6 +7,8 @@ from scipy.optimize import fmin
 
 import matplotlib.pyplot as plt
 import matplotlib
+
+from fines_model_comparison import get_pressure_density_relationship
 
 matplotlib.style.use('classic')
 plt.rc('text', usetex=True)
@@ -113,30 +116,10 @@ def get_particle_volume(distribution_file):
     return 4*np.pi*np.sum(radii**3)/3
 
 
-def get_pressure_density_relationship(distribution, mass):
-    mass_str = f"{str(mass).replace('.', '_')}kg"
-    distribution_filename = f"kcv_{distribution}_" + mass_str + ".dat"
-    distribution_file = pathlib.Path("~/DEMsim/size_distributions/kcv").expanduser() / distribution_filename
-    particle_volume = get_particle_volume(distribution_file)
-    print("Particle volume", particle_volume)
-    compaction_path = pathlib.Path(f"~/DEMresults/kcv/uniaxial_{mass_str}/{distribution}/compaction").expanduser()
-    surface_position_file = compaction_path / "surface_positions.dou"
-    surface_data = np.genfromtxt(surface_position_file, delimiter=",")
-    radius = surface_data[0, 2]
-    height = surface_data[:, -2]
-    cylinder_volume = np.pi*radius**2*height
-    density = particle_volume/cylinder_volume
-    surface_force_file = compaction_path / "surface_forces.dou"
-    surface_forces = np.genfromtxt(surface_force_file, delimiter=",")
-    compaction_pressure = surface_forces[:, -2]/np.pi/radius**2
-    radial_pressure = surface_forces[:, 1]/np.pi/2/radius/height
-    return np.column_stack((density, compaction_pressure, radial_pressure))
-
-
 def main():
     distribution = "fines"
-    mass = 0.1
-    data = get_pressure_density_relationship(distribution, mass)
+    particle_volume = get_particle_volume(size_distribution_file)
+    data = get_pressure_density_relationship(distribution)
     density = data[:, 0]
     print(np.max(density))
     pa = data[:, 1]/1e6

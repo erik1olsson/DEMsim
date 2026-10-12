@@ -30,7 +30,7 @@ def main():
     radii[:N_stones] = r_stones
     radii[N_stones:] = r_fines
 
-    filename = "kcv_{r1}mm-{r2}mm_vf={vf}_mass={mass}_kg".format(r1=int(r_fines*1000), r2=int(r_stones*1000), vf=vf_fines,
+    filename = "kcv_{r1}mm-{r2}mm_vf={vf}_mass={mass}kg".format(r1=int(r_fines*1000), r2=int(r_stones*1000), vf=vf_fines,
                                                           mass=mass).replace(".", "_")
 
     filename += ".dat"

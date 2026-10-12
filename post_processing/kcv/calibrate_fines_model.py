@@ -7,8 +7,6 @@ from scipy.optimize import fmin
 import matplotlib.pyplot as plt
 import matplotlib
 
-from fines_model import get_particle_volume, residual_loading, model
-
 matplotlib.style.use('classic')
 plt.rc('text', usetex=True)
 plt.rc('font', serif='Computer Modern Roman')
@@ -18,6 +16,11 @@ plt.rc('font', **{'family': 'serif', 'serif': ['Computer Modern Roman'],
                   'monospace': ['Computer Modern Typewriter']})
 
 Simulation = namedtuple("Simulation", ["gradation", "results_directory", "color"])
+
+
+def get_particle_volume(distribution_file):
+    radii = np.genfromtxt(distribution_file, dtype=float)
+    return 4*np.pi*np.sum(radii**3)/3
 
 
 def fines_model(D, radius, height, D_th, d_boundary, K, nl):
@@ -39,27 +42,28 @@ def residual(par, data):
 
 def main():
     gradation_dir = pathlib.Path("~/DEMsim/size_distributions/kcv").expanduser()
-    results_dir = pathlib.Path("~/DEMresults/kcv").expanduser()
+    results_dir = pathlib.Path("~/DEMsim/results/kcv").expanduser()
     simulations = [
-        # Simulation(gradation=gradation_dir / "mono/kcv_1mm_6000.dat",
-        #            results_directory=results_dir / "mono_6000/fines/compaction", color="b"),
+        Simulation(gradation=gradation_dir / "mono/kcv_2mm_0_1kg.dat",
+                   results_directory=results_dir / "monosize_0_1kg_2mm/fines/1/compaction", color="b"),
         # Simulation(gradation=gradation_dir/"fuller/kcv_fines_0_1kg.dat",
         #            results_directory=results_dir/"uniaxial_0_1kg/fines/4/compaction", color="r"),
-        Simulation(gradation=gradation_dir/"fuller/kcv_fines_0_2kg.dat",
-                   results_directory=results_dir/"uniaxial_0_2kg/fines/1/compaction", color="b"),
-        Simulation(gradation=gradation_dir/"fuller/kcv_fines_0_2kg.dat",
-                   results_directory=results_dir/"uniaxial_0_2kg/fines/2/compaction", color="b"),
-        Simulation(gradation=gradation_dir/"fuller/kcv_fines_0_2kg.dat",
-                   results_directory=results_dir/"uniaxial_0_2kg/fines/5/compaction", color="b"),
-        Simulation(gradation=gradation_dir/"fuller/kcv_fines_0_5kg.dat",
-                   results_directory=results_dir/"uniaxial_0_5kg/fines/compaction", color="g"),
-        Simulation(gradation=gradation_dir/"fuller/kcv_fines_1_0kg.dat",
-                   results_directory=results_dir/"uniaxial_1_0kg/fines/compaction", color="k")
+        # Simulation(gradation=gradation_dir/"fuller/kcv_fines_0_2kg.dat",
+        #             results_directory=results_dir/"uniaxial_0_2kg/fines/1/compaction", color="b"),
+        # Simulation(gradation=gradation_dir/"fuller/kcv_fines_0_2kg.dat",
+        #           results_directory=results_dir/"uniaxial_0_2kg/fines/2/compaction", color="b"),
+        # Simulation(gradation=gradation_dir/"fuller/kcv_fines_0_2kg.dat",
+        #            results_directory=results_dir/"uniaxial_0_2kg/fines/5/compaction", color="b"),
+        # Simulation(gradation=gradation_dir/"fuller/kcv_fines_0_5kg.dat",
+        #            results_directory=results_dir/"uniaxial_0_5kg/fines/compaction", color="g"),
+        # Simulation(gradation=gradation_dir/"fuller/kcv_fines_1_0kg.dat",
+        #            results_directory=results_dir/"uniaxial_1_0kg/fines/compaction", color="k")
 
     ]
     data_sets = []
     for sim in simulations:
         particle_volume = get_particle_volume(sim.gradation)
+        print(sim.results_directory)
         surface_position_file = sim.results_directory / "surface_positions.dou"
         surface_data = np.genfromtxt(surface_position_file, delimiter=",")
         radius = surface_data[0, 2]

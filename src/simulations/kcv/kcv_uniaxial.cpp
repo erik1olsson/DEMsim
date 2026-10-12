@@ -127,31 +127,32 @@ void DEM::kcv_uniaxial(const std::string& settings_file_name) {
 
     // Moving the lid to the top particle
     auto bbox = simulator.get_bounding_box();
-    auto zmax = bbox[5];
-    top_surface->move(Vec3(0, 0, zmax - filling_height), Vec3(0, 0, 0));
+    auto zmax1 = bbox[5];
+    top_surface->move(Vec3(0, 0, zmax1 - filling_height), Vec3(0, 0, 0));
+    std::cout << "Flipping gravity to up\n";
     simulator.set_gravity({0, 0, 9.82});
-    simulator.run(run_for_time01);
     run_for_time01.reset(0.1s);
+    simulator.run(run_for_time01);
     max_velocity.set_new_value(0.1);
     simulator.run(max_velocity);
 
-    // Moving the lid to the top particle
+    // Moving the lid to the bottom particle
     bbox = simulator.get_bounding_box();
     auto zmin = bbox[4];
     bottom_surface->move(Vec3(0, 0, zmin), Vec3(0, 0, 0));
+    std::cout << "Flipping gravity to down\n";
     simulator.set_gravity({0, 0, -9.82});
-    simulator.run(run_for_time01);
     run_for_time01.reset(0.1s);
+    simulator.run(run_for_time01);
     max_velocity.set_new_value(0.1);
     simulator.run(max_velocity);
 
-    simulator.set_gravity({0, 0, -9.82});
 
     // Moving the lid to the top particle
     bbox = simulator.get_bounding_box();
-    zmax = bbox[5];
+    auto zmax2 = bbox[5];
 
-    top_surface->move(Vec3(0, 0, zmax - filling_height), Vec3(0, 0, 0));
+    top_surface->move(Vec3(0, 0, zmax2 - zmax1), Vec3(0, 0, 0));
     top_surface->set_velocity(Vec3(0 ,0, -compaction_velocity));
 
     auto output_compaction = simulator.create_output(output_directory + "/compaction/", 0.001s);

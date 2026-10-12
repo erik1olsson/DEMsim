@@ -71,18 +71,18 @@ def main():
     scene = fig.scene
     scene.camera.position = [-0, 0.5, 0.5]
     scene.camera.focal_point = [0., 0, 0]
-    snapshot = Snapshot(os.path.expanduser('~/DEMresults/kcv/uniaxial_0_2kg/full_continuum/1/animation'))
+    snapshot = Snapshot(os.path.expanduser('/home/erolsson/DEMsim/results/kcv/monosize_0_1kg_2mm/fines/1/animation'))
     snapshot.plot_periodic_bc = False
     bbox = BoundingBox()
     # bbox.z_max = lambda t: 0.025
     bbox.z_min = lambda t: -0.001
     snapshot.surface_bounding_boxes[3] = bbox
     snapshot.surface_bounding_boxes[2] = bbox
-    snapshot.visible_functions[1] = lambda t: False
+    # snapshot.visible_functions[1] = lambda t: False
     # snapshot.visible_functions[3] = lambda t: False
     snapshot.surfaces_colors[0] = colors.red
     snapshot.surfaces_colors[3] = colors.red
-    snapshot.plot(0.6)
+    snapshot.plot(2.)
     # mlab.view(0, 0, distance=0.25)
     scene.camera.view_up = [0, 0, 1]
     scene.camera.focal_point = [0., 0, 0]
