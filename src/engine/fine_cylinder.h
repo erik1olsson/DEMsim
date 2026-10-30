@@ -129,38 +129,21 @@ namespace DEM {
         [[nodiscard]] double get_force() const {return force_; }
         [[nodiscard]] const Vec3& get_displacement() const {return displacement_; }
         [[nodiscard]] double get_resistance_pressure() const {return resistance_pressure_; }
+        [[nodiscard]] double get_available_pressure() const {return available_pressure_; }
         [[nodiscard]] double get_background_pressure() const {return background_pressure_; }
         [[nodiscard]] double get_local_density() const {return local_density_; }
-        [[nodiscard]] double get_mobilized_pressure() const {return mobilized_pressure_; }
-
-        // Elastic local density increase produced by the magnitude of the 3-D
-        // particle-fines relative displacement.  displacement_ and
-        // mobilized_pressure_ are kept constitutively consistent after every
-        // update: the pressure obtained from displacement_ is exactly the
-        // stored mobilized pressure. Relative motion that cannot be stored in
-        // that state is plastic flow around the particle.
-        [[nodiscard]] static constexpr double density_gradient() {
-            return 45.0;
-        }
-
-        [[nodiscard]] static double density_increment(double displacement) {
-            return density_gradient()*displacement;
-        }
-
-        [[nodiscard]] static double displacement_from_density_increment(
-            double density_increment) {
-            return std::max(0.0, density_increment)/density_gradient();
-        }
+        [[nodiscard]] bool is_load_bearing() const {return load_bearing_; }
 
         void update(const Vec3& displacement, double force, double local_density,
-                    double resistance_pressure, double mobilized_pressure,
-                    double background_pressure) {
+                    double resistance_pressure, double available_pressure,
+                    double background_pressure, bool load_bearing) {
             displacement_ = displacement;
             force_ = force;
             local_density_ = local_density;
             resistance_pressure_ = resistance_pressure;
-            mobilized_pressure_ = mobilized_pressure;
+            available_pressure_ = available_pressure;
             background_pressure_ = background_pressure;
+            load_bearing_ = load_bearing;
         }
 
         const ParticleType* get_particle() const { return particle_; }
@@ -171,9 +154,10 @@ namespace DEM {
         Vec3 displacement_ = {0, 0,0};
         double force_ = 0;
         double local_density_ = 0;
-        double mobilized_pressure_ = 0;
         double resistance_pressure_ = 0;
+        double available_pressure_ = 0;
         double background_pressure_ = 0;
+        bool load_bearing_ = false;
     };
 
     template<typename ForceModel, typename ParticleType>
@@ -181,7 +165,7 @@ namespace DEM {
     public:
         FineCylinder(double radius, double height, double fine_mass, double stone_density, std::size_t numpoints,
             const std::vector<ParticleType*>& particles, FineMaterial* mat,
-            double particle_yield_density_increment = 0.005);
+            double particle_density_factor = 0.36);
         void add_particle(const ParticleType* particle);
         void update(std::chrono::duration<double> dt, const Vec3& gravity);
         void connect_surface(PointSurface<ForceModel, ParticleType>* surface, std::size_t point);
@@ -208,6 +192,16 @@ namespace DEM {
         // performed towards the cylinder boundaries.
         [[nodiscard]] LocalFinesState local_fines_state(double z) const;
 
+        // Dimensionless local densification law
+        //
+        //     Delta D = C_D |u_particle - u_fines| / r_particle.
+        //
+        // Normalising by particle radius makes the interaction invariant under
+        // a uniform scaling of the geometry. For r_particle = 8 mm, the default
+        // C_D = 0.36 is equivalent to the earlier gradient 45 1/m.
+        [[nodiscard]] double particle_density_increment(
+            double displacement, double particle_radius) const;
+
         double radius_;
         std::vector<FinesMaterialPoint<ForceModel, ParticleType>> mass_points_;
         std::vector<FinesIntegrationPoint<ForceModel, ParticleType>> integration_points_;
@@ -220,10 +214,7 @@ namespace DEM {
 
         FineMaterial* material_;
 
-        // Maximum additional elastic density increment after the local fines
-        // have reached the load-carrying density. This is the single new
-        // particle-resistance parameter. Excess relative motion is plastic flow.
-        double particle_yield_density_increment_;
+        double particle_density_factor_;
         double kinetic_energy_ = 0;
 
     };

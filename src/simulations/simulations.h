@@ -31,6 +31,7 @@ namespace DEM {
     void kcv_uniaxial(const std::string& settings_file_name);
     void kcv_fines(const std::string& settings_file_name);
     void kcv_particle_resistance(const std::string& settings_file_name);
+    void kcv_particle_response(const std::string& settings_file_name);
     void kcv_particle_drop(const std::string& settings_file_name);
 
 

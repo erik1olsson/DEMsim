@@ -41,7 +41,7 @@ void DEM::kcv_fines(const std::string& settings_file_name) {
     mat->mu_wall = parameters.get_parameter<double>("mu_wall");
 
     auto fine_material = simulator.create_material<FineMaterial>(2650);
-    fine_material->assign_parameters(fuller5_25_parameters);
+    fine_material->assign_parameters(monosize_parameters);
 
     auto compaction_velocity = parameters.get_parameter<double>("compaction_velocity");
     auto particle_radii = read_vector_from_file<double>(particle_file);
@@ -56,7 +56,7 @@ void DEM::kcv_fines(const std::string& settings_file_name) {
     for (const auto& r: particle_radii) {
         stone_volume += 4*3.1415*pow(r, 3)/3;
     }
-    // stone_volume *= 0;
+    stone_volume *= 0;
     std::cout << "Fines volume is: " << fines_volume << std::endl;
     std::cout << "Stone volume is: " << stone_volume << std::endl;
 
@@ -86,6 +86,7 @@ void DEM::kcv_fines(const std::string& settings_file_name) {
     auto particle_positions = random_fill_cylinder(0, filling_height,
                                                    main_cylinder_radius, simulation_particle_radii);
 
+    /*
     for (std::size_t i = 0; i != particle_positions.size(); ++i) {
     // for (std::size_t i = 0; i != 2; ++i) {
         ParticleType *p = simulator.create_particle(simulation_particle_radii[i], particle_positions[i],
@@ -95,7 +96,7 @@ void DEM::kcv_fines(const std::string& settings_file_name) {
             p->set_mass(min_particle_mass);
         }
     }
-
+    */
     auto fine_cylinder = simulator.create_fine_cylinder(main_cylinder_radius, filling_height,
         fines_volume*mat->density,  mat->density, 25, fine_material);
 
@@ -142,14 +143,11 @@ void DEM::kcv_fines(const std::string& settings_file_name) {
     simulator.run(max_velocity);
     simulator.remove_output(output_filling);
 
-    double z_max1 = simulator.get_bounding_box()[5];
     double top_slice_height = fine_cylinder->get_position_of_point(24) - fine_cylinder->get_position_of_point(23);
     double top_slice_density = fine_cylinder->get_density_of_slice(23);
     std::cout << "top slice height is " << top_slice_height << " and density " << top_slice_density << std::endl;
     double z_max2 = top_slice_density/0.23*top_slice_height + fine_cylinder->get_position_of_point(23);
-    double z_max = std::max(z_max1, z_max2);
-    std::cout << "Moving lid to " << z_max << std::endl;
-    top_surface->move(Vec3(0, 0, z_max - filling_height), Vec3(0, 0, 0));
+    top_surface->move(Vec3(0, 0, z_max2 - filling_height), Vec3(0, 0, 0));
 
     top_surface->set_velocity(Vec3(0 ,0, -compaction_velocity));
 

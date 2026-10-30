@@ -23,7 +23,7 @@ def main():
 
     radii = np.zeros(N) + r
     size_distribution_directory = pathlib.Path("../../size_distributions/kcv/mono")
-    filename = "kcv_{r}mm_{mass}kg".format(r=int(r*1000), mass=mass).replace(".", "_")
+    filename = "kcv_{r}mm_{mass}kg".format(r=int(r*1000), mass=float(mass)).replace(".", "_")
     filename += ".dat"
     np.savetxt(size_distribution_directory / filename, radii)
 

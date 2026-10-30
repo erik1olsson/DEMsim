@@ -128,8 +128,8 @@ void DEM::kcv_particle_drop(const std::string& settings_file_name) {
     EngineType::ParticleVelocityLess max_velocity(simulator, 0.001, 0.01s);
     simulator.run(max_velocity);
     output_drop->deactivate();
-    // top_surface->move(Vec3(0, 0, p->get_position().z() + p->get_radius() - z), Vec3(0, 0, 0));
-    // top_surface->set_velocity(Vec3(0, 0, -2*particle_radius));
+    top_surface->move(Vec3(0, 0, p->get_position().z() + p->get_radius() - z), Vec3(0, 0, 0));
+    top_surface->set_velocity(Vec3(0, 0, -2*particle_radius));
     auto output_compaction = simulator.create_output(output_directory + "/particle_compaction/", 0.001s);
     output_compaction->print_kinetic_energy = true;
     output_compaction->print_surface_forces = true;

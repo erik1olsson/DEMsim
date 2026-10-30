@@ -29,6 +29,7 @@ std::map<std::string, DEM::SimulationFunctionPtr> DEM::valid_simulations() {
             {"kcv_uniaxial",                   kcv_uniaxial},
             {"kcv_fines",                      kcv_fines},
             {"kcv_particle_resistance",        kcv_particle_resistance},
+            {"kcv_particle_response",          kcv_particle_response},
             {"kcv_particle_drop",              kcv_particle_drop},
     };
 }

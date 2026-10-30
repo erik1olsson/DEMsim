@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 
-from fines_model import get_particle_volume
+from calibrate_fines_model import get_particle_volume
 
 matplotlib.style.use('classic')
 plt.rc('text', usetex=True)
@@ -31,23 +31,35 @@ def get_pressure_density_relationship(results_path, particle_volume):
     surface_forces = np.genfromtxt(surface_force_file, delimiter=",")
     compaction_pressure = surface_forces[:, -2]/np.pi/radius**2/1e6
     length = np.min((len(density), len(compaction_pressure)))
-    print(length)
     return np.column_stack((density[:length], compaction_pressure[:length]))
 
 
 def main():
-    gradation_path = pathlib.Path("~/DEMsim/size_distributions/kcv").expanduser()
-    results_path = pathlib.Path("~/DEMresults/kcv").expanduser()
+    gradation_path = pathlib.Path("~/DEMsim/size_distributions/kcv/mono").expanduser()
+    results_path = pathlib.Path("~/DEMresults/kcv/monosize").expanduser()
     cases = [
         # Case(full_path=results_path / "uniaxial_0_1kg/fines/compaction",
         #      continuum_path=results_path / "uniaxial_0_1kg/fines_continuum/compaction",
         #      gradation=gradation_path / "fuller/kcv_fines_0_1kg.dat",
         #      color="b"),
 
-        Case(full_path=results_path/"uniaxial_0_2kg/full/",
-             continuum_path=results_path/"uniaxial_0_2kg/full_continuum/",
-             gradation=gradation_path/"fuller/kcv_full_0_2kg.dat",
-             color="b", full_simulations=[1,2,3,4,5], continuum_simulations=[1])
+        Case(full_path=results_path / "0_1kg_2mm/fines/",
+             continuum_path=results_path / "0_1kg_2mm/fines_continuum/",
+             gradation=gradation_path / "kcv_2mm_0_1kg.dat",
+             color="b", full_simulations=[1,2,3], continuum_simulations=[1]),
+        Case(full_path=results_path/"0_2kg_2mm/fines/",
+             continuum_path=results_path/"0_2kg_2mm/fines_continuum/",
+             gradation=gradation_path/"kcv_2mm_0_2kg.dat",
+             color="r", full_simulations=[1, 2, 3], continuum_simulations=[1]),
+        Case(full_path=results_path/"0_5kg_2mm/fines/",
+             continuum_path=results_path/"0_5kg_2mm/fines_continuum/",
+             gradation=gradation_path/"kcv_2mm_0_5kg.dat",
+             color="g", full_simulations=[1, 2, 3], continuum_simulations=[1]),
+        Case(full_path=results_path/"1_0kg_2mm/fines/",
+             continuum_path=results_path/"1_0kg_2mm/fines_continuum/",
+             gradation=gradation_path/"kcv_2mm_1_0kg.dat",
+             color="k", full_simulations=[1, 2, 3], continuum_simulations=[1])
+
     ]
 
     for case in cases:
@@ -61,7 +73,7 @@ def main():
         for continuum_sim in case.continuum_simulations:
             directory = case.continuum_path / str(continuum_sim) / "compaction"
             continuum_results = get_pressure_density_relationship(directory, particle_volume)
-            plt.plot(continuum_results[:-60, 0], continuum_results[:-60, 1], "--" + "k", lw=2)
+            plt.plot(continuum_results[:, 0], continuum_results[:, 1], "--" + case.color, lw=2)
 
     # plt.xlim(0.44, 0.48)
     # plt.ylim(0, 1)

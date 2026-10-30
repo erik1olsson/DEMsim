@@ -39,10 +39,12 @@ namespace DEM {
 
     };
 
-
-
     inline std::array<double, 6> fuller5_25_parameters = {
         6.65180822e-04, 5.15141338e-01, 1.31312298e+05*1e6, 3.18855802e+00, 0.658433977547588, 0.5
+    };
+
+    inline std::array<double, 6> monosize_parameters = {
+        0.0011833, 0.493756, 3.00753e+05*1e6, 2.5592e+00, 0.658433977547588, 0.5
     };
 
 }

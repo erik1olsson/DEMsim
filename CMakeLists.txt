@@ -101,6 +101,7 @@ add_executable(DEMsim
                src/materials/fine_material.cpp
                src/materials/fine_material.h
         src/simulations/kcv/kcv_particle_drop.cpp
+        src/simulations/kcv/kcv_particle_response.cpp
 )
 
 target_link_libraries (DEMsim stdc++fs "${OpenMP_CXX_FLAGS}" Eigen3::Eigen)
